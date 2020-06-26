@@ -1,0 +1,26 @@
+{
+  "name": "model-validator",
+  "version": "0.0.1",
+  "description": "Run-time model and type validation for JavaScript",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^5.0.0",
+    "jest": "^26.1.0",
+    "rollup": "^2.18.0",
+    "ts-jest": "^26.1.1",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.5"
+  },
+  "keywords": [
+    "type",
+    "model",
+    "validation",
+    "runtime"
+  ],
+  "author": "Kristof Hermans <kristof.hermans.kh@gmail.com>",
+  "license": "MIT"
+}
