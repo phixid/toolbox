@@ -138,4 +138,9 @@ describe('typeCheck', () => {
         expect(typeCheck(null, '[]')).toEqual(false);
         expect(typeCheck(undefined, '[]')).toEqual(false);
     });
+
+    test('handles incorrect type', () => {
+        // @ts-ignore
+        expect(typeCheck(0, 'incorrectType')).toEqual(false);
+    });
 });
