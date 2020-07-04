@@ -1,3 +1,27 @@
+export type ModelType = {
+    [key: string]: {
+        required?: boolean;
+        type: BasicType | GenericListType | ListOfBasicType;
+    };
+};
+
+// TODO: type model
+export const Model = {
+    validate: (model: ModelType, obj: any) => {
+        const hasRequiredProperties = Object.entries(model)
+            .filter(([key, value]) => value && value.required)
+            .reduce((acc, [requiredKey, requiredValue]) => {
+                const isDefined = obj[requiredKey] !== undefined;
+
+                return acc && isDefined;
+            }, true);
+
+        return {
+            isValid: hasRequiredProperties,
+        };
+    },
+};
+
 type BasicType = 'boolean' | 'number' | 'string';
 type GenericListType = '[]';
 type ListOfBasicType = 'boolean[]' | 'number[]' | 'string[]';

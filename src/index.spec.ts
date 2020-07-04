@@ -1,20 +1,50 @@
-import {typeCheck} from './index';
+import {Model, ModelType, typeCheck} from './index';
 
-describe('Model validator', () => {
-    // test('is asynchronous', () => {});
+const mockUserModel: ModelType = {
+    firstname: { required: true, type: 'string' },
+    lastname: { required: true, type: 'string' },
+    email: { required: true, type: 'string' },
+    phone: { type: 'string' },
+};
 
-    // describe('result API', () => {
-        // test('has __isValid property', () => {});
-        // test('has __errors property', () => {});
-        // test('has __modelName property', () => {});
-        // test('has fold method', () => {});
-    // });
+const mockUser = {
+    firstname: 'Kristof',
+    lastname: 'Hermans',
+    email: 'kristof.hermans@golden-giraffes.be'
+};
 
-    // describe('__isValid', () => {
-        // test('is false when a required property is missing', () => {});
-        // test('is false when a property has the wrong type', () => {});
-        // test('is true when required properties are present and types match', () => {});
-    // });
+describe('Model', () => {
+    describe('validate', () => {
+        test('is a function', () => {
+            expect(typeof Model.validate).toEqual('function');
+        });
+
+        describe('isValid property', () => {
+            test('is false when a required property is missing', () => {
+                const invalidUser = { ...mockUser };
+                delete invalidUser.email;
+
+                expect(Model.validate(mockUserModel, invalidUser).isValid).toEqual(false);
+            });
+            // test('is false when at least one property has the wrong type', () => {});
+            test('is true when required properties are present and types match', () => {
+                expect(Model.validate(mockUserModel, mockUser).isValid).toEqual(true);
+            });
+
+            // test('handles properties that are complex models', () => {});
+            // test('handles properties that are lists of complex models ', () => {});
+        });
+
+        describe('errors property', () => {
+            // test('is null when there are no errors', () => {});
+            // test('is array of length x when there are errors', () => {});
+        });
+
+        describe('output property', () => {
+            // test('is an object when the input matches the model', () => {});
+            // test('is null when the input does not match the model', () => {});
+        });
+    });
 });
 
 describe('typeCheck', () => {
