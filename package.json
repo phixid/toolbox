@@ -10,11 +10,20 @@
     "test:coverage": "jest --coverage && coveralls < coverage/lcov.info",
     "test:watch": "jest --watchAll"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm run test",
+      "pre-push": "npm run lint && npm run test"
+    }
+  },
   "devDependencies": {
     "@rollup/plugin-typescript": "^5.0.0",
     "@types/jest": "^26.0.3",
     "coveralls": "^3.1.0",
+    "husky": "^4.2.5",
     "jest": "^26.1.0",
+    "lint-staged": "^10.2.11",
+    "prettier": "^2.0.5",
     "rollup": "^2.18.0",
     "ts-jest": "^26.1.1",
     "tslint": "^6.1.2",

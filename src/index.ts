@@ -1,16 +1,24 @@
-export type ModelType = {
+export enum DataType {
+    Boolean = 'boolean',
+    Number = 'number',
+    String = 'string',
+    GenericList = '[]',
+    BooleanList = 'boolean[]',
+    NumberList = 'number[]',
+    StringList = 'string[]'
+}
+type DataModel = {
     [key: string]: {
         required?: boolean;
-        type: BasicType | GenericListType | ListOfBasicType;
+        type: DataType;
     };
 };
 
-// TODO: type model
-export const Model = {
-    validate: (model: ModelType, obj: any) => {
+export const Model = (model: DataModel) => ({
+    validate: (obj: any) => {
         const hasRequiredProperties = Object.entries(model)
-            .filter(([key, value]) => value && value.required)
-            .reduce((acc, [requiredKey, requiredValue]) => {
+            .filter(([_, value]) => value && value.required)
+            .reduce((acc, [requiredKey]) => {
                 const isDefined = obj[requiredKey] !== undefined;
 
                 return acc && isDefined;
@@ -20,13 +28,9 @@ export const Model = {
             isValid: hasRequiredProperties,
         };
     },
-};
+});
 
-type BasicType = 'boolean' | 'number' | 'string';
-type GenericListType = '[]';
-type ListOfBasicType = 'boolean[]' | 'number[]' | 'string[]';
-
-export const typeCheck = (value: any, type: BasicType | GenericListType | ListOfBasicType) => {
+export const typeCheck = (value: any, type: DataType) => {
     const isBasicType = type === 'boolean' || type === 'number' || type === 'string';
     const isGenericListType = type === '[]';
     const isListOfBasicType = type === 'boolean[]' || type === 'number[]' || type === 'string[]';
