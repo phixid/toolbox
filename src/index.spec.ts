@@ -8,15 +8,27 @@ describe('Model', () => {
     });
 
     describe('isValid property', () => {
-      test('is false when a required property is missing', () => {
+      test('is false when a required property is missing', async () => {
         const invalidUser = { ...mockUser };
         delete invalidUser.email;
+        const { isValid } = await mockUserModel.validate(invalidUser);
 
-        expect(mockUserModel.validate(invalidUser).isValid).toEqual(false);
+        expect(isValid).toEqual(false);
       });
-      // test('is false when at least one property has the wrong type', () => {});
-      test('is true when required properties are present and types match', () => {
-        expect(mockUserModel.validate(mockUser).isValid).toEqual(true);
+
+      test('is false when at least one property has the wrong type', async () => {
+        const invalidUser = { ...mockUser };
+        // @ts-ignore
+        invalidUser.firstname = 1;
+        const { isValid } = await mockUserModel.validate(invalidUser);
+
+        expect(isValid).toEqual(false);
+      });
+
+      test('is true when required properties are present and types match', async () => {
+        const { isValid } = await mockUserModel.validate(mockUser);
+
+        expect(isValid).toEqual(true);
       });
 
       // test('handles properties that are complex models', () => {});
@@ -24,13 +36,46 @@ describe('Model', () => {
     });
 
     describe('errors property', () => {
-      // test('is null when there are no errors', () => {});
-      // test('is array of length x when there are errors', () => {});
+      test('is null when there are no errors', async () => {
+        const { errors } = await mockUserModel.validate(mockUser);
+
+        expect(errors).toEqual(null);
+      });
+
+      test('is array of length x when there are errors', async () => {
+        const invalidUser = { ...mockUser };
+        delete invalidUser.firstname;
+        // @ts-ignore
+        invalidUser.lastname = 1;
+
+        const { errors } = await mockUserModel.validate(invalidUser);
+
+        expect(errors?.length).toEqual(3);
+      });
+
+      test('has a formatted error when missing a required property', async () => {
+        const invalidUser = { ...mockUser };
+        delete invalidUser.firstname;
+
+        const { errors } = await mockUserModel.validate(invalidUser);
+
+        expect(errors?.[0]).toEqual('Model validation error: missing required property firstname');
+      });
+
+      test('has a formatted error when missing a required property', async () => {
+        const invalidUser = { ...mockUser };
+        // @ts-ignore
+        invalidUser.firstname = 1;
+
+        const { errors } = await mockUserModel.validate(invalidUser);
+
+        expect(errors?.[0]).toEqual('Model validation error: property firstname has type number expected type string');
+      });
     });
 
     describe('output property', () => {
-      // test('is an object when the input matches the model', () => {});
       // test('is null when the input does not match the model', () => {});
+      // test('is an object when the input matches the model', () => {});
     });
   });
 });
