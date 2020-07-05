@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "rollup -c",
+    "format": "prettier --write '**/*.{t,j}s'",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "test": "jest",
     "test:coverage": "jest --coverage && coveralls < coverage/lcov.info",
@@ -12,9 +13,13 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint && npm run test",
-      "pre-push": "npm run lint && npm run test"
+      "pre-commit": "lint-staged && npm run test",
+      "pre-push": "tslint -c tslint.json && npm run test"
     }
+  },
+  "lint-staged": {
+    "*.ts": ["prettier --write", "tslint"],
+    "*.js": "prettier --write"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^5.0.0",
