@@ -8,6 +8,20 @@ describe('Model', () => {
     });
 
     describe('isValid property', () => {
+      test('is false when obj is not an object', async () => {
+        const { isValid: booleanIsValid } = await mockUserModel.validate(true);
+        const { isValid: numberIsValid } = await mockUserModel.validate(1);
+        const { isValid: stringIsValid } = await mockUserModel.validate('');
+        const { isValid: undefinedIsValid } = await mockUserModel.validate(undefined);
+        const { isValid: nullIsValid } = await mockUserModel.validate(null);
+
+        expect(booleanIsValid).toEqual(false);
+        expect(numberIsValid).toEqual(false);
+        expect(stringIsValid).toEqual(false);
+        expect(undefinedIsValid).toEqual(false);
+        expect(nullIsValid).toEqual(false);
+      });
+
       test('is false when a required property is missing', async () => {
         const invalidUser = { ...mockUser };
         delete invalidUser.email;
@@ -51,6 +65,20 @@ describe('Model', () => {
         const { errors } = await mockUserModel.validate(invalidUser);
 
         expect(errors?.length).toEqual(3);
+      });
+
+      test('has a formatted error when obj is of the wrong type', async () => {
+        const { errors: booleanErrors } = await mockUserModel.validate(true);
+        const { errors: numberErrors } = await mockUserModel.validate(1);
+        const { errors: stringErrors } = await mockUserModel.validate('');
+        const { errors: undefinedErrors } = await mockUserModel.validate(undefined);
+        const { errors: nullErrors } = await mockUserModel.validate(null);
+
+        expect(booleanErrors?.[0]).toEqual('Model validation error: obj is of type boolean');
+        expect(numberErrors?.[0]).toEqual('Model validation error: obj is of type number');
+        expect(stringErrors?.[0]).toEqual('Model validation error: obj is of type string');
+        expect(undefinedErrors?.[0]).toEqual('Model validation error: obj is undefined');
+        expect(nullErrors?.[0]).toEqual('Model validation error: obj is null');
       });
 
       test('has a formatted error when missing a required property', async () => {

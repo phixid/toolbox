@@ -1,4 +1,4 @@
-import { DataType, Model } from '../index';
+import { DataType, DataModel } from '../index';
 
 const mockUserModelConfig = {
   firstname: { required: true, type: DataType.String },
@@ -13,4 +13,4 @@ export const mockUser = {
   email: 'kristof.hermans@golden-giraffes.be',
 };
 
-export const mockUserModel = Model(mockUserModelConfig);
+export const mockUserModel = DataModel(mockUserModelConfig);
