@@ -1,19 +1,21 @@
-import { mockUser, mockUserModel } from './__mocks__/user.mock';
-import { DataType, typeCheck } from './index';
+import { mockUser, mockUserModel, mockUserWithAddress, mockUserWithAddressModel } from './__mocks__/user.mock';
+import { DataModel, DataType, typeCheck } from './index';
+
+const mockModel = DataModel(mockUserModel);
 
 describe('Model', () => {
   describe('validate', () => {
     test('is a function', () => {
-      expect(typeof mockUserModel.validate).toEqual('function');
+      expect(typeof mockModel.validate).toEqual('function');
     });
 
     describe('isValid property', () => {
       test('is false when obj is not an object', async () => {
-        const { isValid: booleanIsValid } = await mockUserModel.validate(true);
-        const { isValid: numberIsValid } = await mockUserModel.validate(1);
-        const { isValid: stringIsValid } = await mockUserModel.validate('');
-        const { isValid: undefinedIsValid } = await mockUserModel.validate(undefined);
-        const { isValid: nullIsValid } = await mockUserModel.validate(null);
+        const { isValid: booleanIsValid } = await mockModel.validate(true);
+        const { isValid: numberIsValid } = await mockModel.validate(1);
+        const { isValid: stringIsValid } = await mockModel.validate('');
+        const { isValid: undefinedIsValid } = await mockModel.validate(undefined);
+        const { isValid: nullIsValid } = await mockModel.validate(null);
 
         expect(booleanIsValid).toEqual(false);
         expect(numberIsValid).toEqual(false);
@@ -25,7 +27,7 @@ describe('Model', () => {
       test('is false when a required property is missing', async () => {
         const invalidUser = { ...mockUser };
         delete invalidUser.email;
-        const { isValid } = await mockUserModel.validate(invalidUser);
+        const { isValid } = await mockModel.validate(invalidUser);
 
         expect(isValid).toEqual(false);
       });
@@ -34,24 +36,32 @@ describe('Model', () => {
         const invalidUser = { ...mockUser };
         // @ts-ignore
         invalidUser.firstname = 1;
-        const { isValid } = await mockUserModel.validate(invalidUser);
+        const { isValid } = await mockModel.validate(invalidUser);
 
         expect(isValid).toEqual(false);
       });
 
       test('is true when required properties are present and types match', async () => {
-        const { isValid } = await mockUserModel.validate(mockUser);
+        const { isValid } = await mockModel.validate(mockUser);
 
         expect(isValid).toEqual(true);
       });
 
-      // test('handles properties that are complex models', () => {});
+      test('handles nested objects and their properties', async () => {
+        const testUser = { ...mockUserWithAddress };
+        delete testUser.address.street;
+
+        const mockAddressModel = DataModel(mockUserWithAddressModel);
+        const { isValid } = await mockAddressModel.validate(testUser);
+
+        expect(isValid).toEqual(false);
+      });
       // test('handles properties that are lists of complex models ', () => {});
     });
 
     describe('errors property', () => {
       test('is null when there are no errors', async () => {
-        const { errors } = await mockUserModel.validate(mockUser);
+        const { errors } = await mockModel.validate(mockUser);
 
         expect(errors).toEqual(null);
       });
@@ -62,17 +72,17 @@ describe('Model', () => {
         // @ts-ignore
         invalidUser.lastname = 1;
 
-        const { errors } = await mockUserModel.validate(invalidUser);
+        const { errors } = await mockModel.validate(invalidUser);
 
         expect(errors?.length).toEqual(3);
       });
 
       test('has a formatted error when obj is of the wrong type', async () => {
-        const { errors: booleanErrors } = await mockUserModel.validate(true);
-        const { errors: numberErrors } = await mockUserModel.validate(1);
-        const { errors: stringErrors } = await mockUserModel.validate('');
-        const { errors: undefinedErrors } = await mockUserModel.validate(undefined);
-        const { errors: nullErrors } = await mockUserModel.validate(null);
+        const { errors: booleanErrors } = await mockModel.validate(true);
+        const { errors: numberErrors } = await mockModel.validate(1);
+        const { errors: stringErrors } = await mockModel.validate('');
+        const { errors: undefinedErrors } = await mockModel.validate(undefined);
+        const { errors: nullErrors } = await mockModel.validate(null);
 
         expect(booleanErrors?.[0]).toEqual('Model validation error: obj is of type boolean');
         expect(numberErrors?.[0]).toEqual('Model validation error: obj is of type number');
@@ -85,19 +95,45 @@ describe('Model', () => {
         const invalidUser = { ...mockUser };
         delete invalidUser.firstname;
 
-        const { errors } = await mockUserModel.validate(invalidUser);
+        const { errors } = await mockModel.validate(invalidUser);
 
         expect(errors?.[0]).toEqual('Model validation error: missing required property firstname');
       });
 
-      test('has a formatted error when missing a required property', async () => {
+      test('has a formatted error when missing a nested required property', async () => {
+        const testUser = { ...mockUserWithAddress };
+        delete testUser.address.street;
+
+        const mockAddressModel = DataModel(mockUserWithAddressModel);
+        const { errors, isValid } = await mockAddressModel.validate(testUser);
+
+        expect(errors?.[0]).toEqual('Model validation error: missing required property street');
+        expect(isValid).toEqual(false);
+      });
+
+      test('has a formatted error when a property type does not match', async () => {
         const invalidUser = { ...mockUser };
         // @ts-ignore
         invalidUser.firstname = 1;
 
-        const { errors } = await mockUserModel.validate(invalidUser);
+        const { errors } = await mockModel.validate(invalidUser);
 
         expect(errors?.[0]).toEqual('Model validation error: property firstname has type number expected type string');
+      });
+
+      test('has a formatted error when a nested required property type does not match', async () => {
+        const testUser = { ...mockUserWithAddress };
+        // @ts-ignore
+        testUser.address.street = 1;
+        // @ts-ignore
+        testUser.address.city = true;
+
+        const mockAddressModel = DataModel(mockUserWithAddressModel);
+        const { errors, isValid } = await mockAddressModel.validate(testUser);
+
+        expect(errors?.[0]).toEqual('Model validation error: property street has type number expected type string');
+        expect(errors?.[1]).toEqual('Model validation error: property city has type boolean expected type string');
+        expect(isValid).toEqual(false);
       });
     });
 
@@ -228,6 +264,19 @@ describe('typeCheck', () => {
     expect(typeCheck({}, DataType.GenericList)).toEqual(false);
     expect(typeCheck(null, DataType.GenericList)).toEqual(false);
     expect(typeCheck(undefined, DataType.GenericList)).toEqual(false);
+  });
+
+  test('handles objects', () => {
+    expect(typeCheck({}, DataType.Object)).toEqual(true);
+    expect(typeCheck('', DataType.Object)).toEqual(false);
+    expect(typeCheck('test', DataType.Object)).toEqual(false);
+    expect(typeCheck(0, DataType.Object)).toEqual(false);
+    expect(typeCheck(1, DataType.Object)).toEqual(false);
+    expect(typeCheck(false, DataType.Object)).toEqual(false);
+    expect(typeCheck(true, DataType.Object)).toEqual(false);
+    expect(typeCheck([], DataType.Object)).toEqual(false);
+    expect(typeCheck(null, DataType.Object)).toEqual(false);
+    expect(typeCheck(undefined, DataType.Object)).toEqual(false);
   });
 
   test('handles incorrect type', () => {

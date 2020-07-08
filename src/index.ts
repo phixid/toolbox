@@ -2,6 +2,7 @@ type Model = {
   [key: string]: {
     required?: boolean;
     type: DataType;
+    model?: Model;
   };
 };
 
@@ -13,6 +14,7 @@ export enum DataType {
   BooleanList = 'boolean[]',
   NumberList = 'number[]',
   StringList = 'string[]',
+  Object = 'object',
 }
 
 export const DataModel = (model: Model) => ({
@@ -45,21 +47,40 @@ export const DataModel = (model: Model) => ({
  * @param model
  * @param obj
  */
-const checkForRequiredProperties = (model: Model, obj: any) => {
-  const errors: string[] = [];
-  const hasRequiredProperties = Object.entries(model)
+type RequiredPropertiesReturnType = { errors: string[]; hasRequiredProperties: boolean };
+const checkForRequiredProperties = (model: Model, obj: any): RequiredPropertiesReturnType => {
+  // @ts-ignore
+  return Object.entries(model)
     .filter(([_, value]) => value && value.required)
-    .reduce((acc, [requiredKey]) => {
-      const isDefined = obj[requiredKey] !== undefined;
-      if (!isDefined) errors.push(`Model validation error: missing required property ${requiredKey}`);
+    .reduce(
+      (acc: RequiredPropertiesReturnType, [requiredKey, requiredValue]) => {
+        const errors: string[] = [...acc.errors];
+        const isDefined = obj[requiredKey] !== undefined;
+        if (!isDefined) errors.push(`Model validation error: missing required property ${requiredKey}`);
 
-      return acc && isDefined;
-    }, true);
+        const isNestedObject = requiredValue.type === DataType.Object && typeCheck(obj[requiredKey], DataType.Object);
+        if (isNestedObject && requiredValue.model) {
+          const {
+            errors: nestedErrors,
+            hasRequiredProperties: hasNestedRequiredProperties,
+          } = checkForRequiredProperties(requiredValue.model, obj[requiredKey]);
 
-  return {
-    errors,
-    hasRequiredProperties,
-  };
+          return {
+            errors: [...errors, ...nestedErrors],
+            hasRequiredProperties: acc.hasRequiredProperties && isDefined && hasNestedRequiredProperties,
+          };
+        }
+
+        return {
+          errors,
+          hasRequiredProperties: acc.hasRequiredProperties && isDefined,
+        };
+      },
+      {
+        errors: [],
+        hasRequiredProperties: true,
+      }
+    );
 };
 
 /**
@@ -67,23 +88,44 @@ const checkForRequiredProperties = (model: Model, obj: any) => {
  * @param model
  * @param obj
  */
-const checkForMatchingPropertyTypes = (model: Model, obj: any) => {
-  const errors: string[] = [];
-  const hasMatchingPropertyTypes = Object.entries(model).reduce((acc, [key, value]) => {
-    const canBeUndefined = !value.required && obj[key] === undefined;
-    const isMatchingPropertyType = typeCheck(obj[key], value.type);
+type MatchingPropertyTypesReturnType = { errors: string[]; hasMatchingPropertyTypes: boolean };
+const checkForMatchingPropertyTypes = (model: Model, obj: any): MatchingPropertyTypesReturnType => {
+  return Object.entries(model).reduce(
+    (acc: MatchingPropertyTypesReturnType, [key, value]) => {
+      const errors: string[] = [...acc.errors];
+      const canBeUndefined = !value.required && obj[key] === undefined;
+      const isMatchingPropertyType = typeCheck(obj[key], value.type);
 
-    if (!canBeUndefined && !isMatchingPropertyType) {
-      errors.push(`Model validation error: property firstname has type ${typeof obj[key]} expected type ${value.type}`);
+      if (!canBeUndefined && !isMatchingPropertyType) {
+        errors.push(`Model validation error: property ${key} has type ${typeof obj[key]} expected type ${value.type}`);
+      }
+
+      const isNestedObject = value.type === DataType.Object && typeCheck(obj[key], DataType.Object);
+      if (isNestedObject && value.model) {
+        const {
+          errors: nestedErrors,
+          hasMatchingPropertyTypes: hasNestedNestedMatchingPropertyTypes,
+        } = checkForMatchingPropertyTypes(value.model, obj[key]);
+
+        return {
+          errors: [...errors, ...nestedErrors],
+          hasMatchingPropertyTypes:
+            acc.hasMatchingPropertyTypes &&
+            (canBeUndefined || isMatchingPropertyType) &&
+            hasNestedNestedMatchingPropertyTypes,
+        };
+      }
+
+      return {
+        errors,
+        hasMatchingPropertyTypes: acc.hasMatchingPropertyTypes && (canBeUndefined || isMatchingPropertyType),
+      };
+    },
+    {
+      errors: [],
+      hasMatchingPropertyTypes: true,
     }
-
-    return acc && (canBeUndefined || isMatchingPropertyType);
-  }, true);
-
-  return {
-    errors,
-    hasMatchingPropertyTypes,
-  };
+  );
 };
 
 /**
@@ -96,6 +138,7 @@ export const typeCheck = (value: any, type: DataType) => {
   const isGenericListType = type === DataType.GenericList;
   const isListOfBasicType =
     type === DataType.BooleanList || type === DataType.NumberList || type === DataType.StringList;
+  const isObjectType = type === DataType.Object;
 
   if (isBasicType) return typeof value === type;
   if (isGenericListType || isListOfBasicType) {
@@ -104,6 +147,11 @@ export const typeCheck = (value: any, type: DataType) => {
     if (isGenericListType) return true;
 
     return value.length === value.filter((x: any) => type.startsWith(typeof x)).length;
+  }
+  if (isObjectType) {
+    if (value === null) return false;
+    if (Array.isArray(value)) return false;
+    return typeof value === type;
   }
 
   return false;
