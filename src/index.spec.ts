@@ -1,5 +1,6 @@
 import { mockUser, mockUserModel, mockUserWithAddress, mockUserWithAddressModel } from './__mocks__/user.mock';
 import { DataModel, DataType, typeCheck } from './index';
+import { mockAddress } from './__mocks__/address.mock';
 
 const mockModel = DataModel(mockUserModel);
 
@@ -47,14 +48,36 @@ describe('Model', () => {
         expect(isValid).toEqual(true);
       });
 
-      test('handles nested objects and their properties', async () => {
-        const testUser = { ...mockUserWithAddress };
+      test('is false when a required nested property is missing', async () => {
+        const testUser = {
+          ...mockUser,
+          address: { ...mockAddress },
+        };
         delete testUser.address.street;
 
         const mockAddressModel = DataModel(mockUserWithAddressModel);
         const { isValid } = await mockAddressModel.validate(testUser);
 
         expect(isValid).toEqual(false);
+      });
+
+      test('is false when a nested property has the wrong type', async () => {
+        const testUser = {
+          ...mockUser,
+          address: { ...mockAddress, street: 1 },
+        };
+
+        const mockAddressModel = DataModel(mockUserWithAddressModel);
+        const { isValid } = await mockAddressModel.validate(testUser);
+
+        expect(isValid).toEqual(false);
+      });
+
+      test('is true when required nested properties are present and types match', async () => {
+        const mockAddressModel = DataModel(mockUserWithAddressModel);
+        const { isValid } = await mockAddressModel.validate(mockUserWithAddress);
+
+        expect(isValid).toEqual(true);
       });
       // test('handles properties that are lists of complex models ', () => {});
     });
@@ -132,7 +155,6 @@ describe('Model', () => {
         const { errors, isValid } = await mockAddressModel.validate(testUser);
 
         expect(errors?.[0]).toEqual('Model validation error: property street has type number expected type string');
-        expect(errors?.[1]).toEqual('Model validation error: property city has type boolean expected type string');
         expect(isValid).toEqual(false);
       });
     });
