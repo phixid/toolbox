@@ -1,3 +1,5 @@
+import { DataType, typeCheck } from './lib/type-check';
+
 type Model = {
   [key: string]: {
     required?: boolean;
@@ -6,41 +8,28 @@ type Model = {
   };
 };
 
-export enum DataType {
-  Boolean = 'boolean',
-  Number = 'number',
-  String = 'string',
-  GenericList = '[]',
-  BooleanList = 'boolean[]',
-  NumberList = 'number[]',
-  StringList = 'string[]',
-  Object = 'object',
-}
-
-export const DataModel = (model: Model) => ({
-  validate: async (obj: any) => {
-    if (!obj || typeof obj !== 'object') {
-      const error =
-        typeof obj === 'boolean' || typeof obj === 'number' || typeof obj === 'string'
-          ? `Model validation error: obj is of type ${typeof obj}`
-          : `Model validation error: obj is ${obj}`;
-
-      return {
-        errors: [error],
-        isValid: false,
-      };
-    }
-
-    const { errors: requiredPropertyErrors, hasRequiredProperties } = checkForRequiredProperties(model, obj);
-    const { errors: matchingPropertyTypeErrors, hasMatchingPropertyTypes } = checkForMatchingPropertyTypes(model, obj);
-    const aggregateErrors = [...requiredPropertyErrors, ...matchingPropertyTypeErrors];
+export const validateWithModel = async (obj: any, model: Model) => {
+  if (!obj || typeof obj !== 'object') {
+    const error =
+      typeof obj === 'boolean' || typeof obj === 'number' || typeof obj === 'string'
+        ? `Model validation error: obj is of type ${typeof obj}`
+        : `Model validation error: obj is ${obj}`;
 
     return {
-      errors: aggregateErrors.length ? aggregateErrors : null,
-      isValid: hasRequiredProperties && hasMatchingPropertyTypes,
+      errors: [error],
+      isValid: false,
     };
-  },
-});
+  }
+
+  const { errors: requiredPropertyErrors, hasRequiredProperties } = checkForRequiredProperties(model, obj);
+  const { errors: matchingPropertyTypeErrors, hasMatchingPropertyTypes } = checkForMatchingPropertyTypes(model, obj);
+  const aggregateErrors = [...requiredPropertyErrors, ...matchingPropertyTypeErrors];
+
+  return {
+    errors: aggregateErrors.length ? aggregateErrors : null,
+    isValid: hasRequiredProperties && hasMatchingPropertyTypes,
+  };
+};
 
 /**
  * Check if an object has the required properties of a model
@@ -126,33 +115,4 @@ const checkForMatchingPropertyTypes = (model: Model, obj: any): MatchingProperty
       hasMatchingPropertyTypes: true,
     }
   );
-};
-
-/**
- * Check if a value is of a certain type
- * @param value
- * @param type
- */
-export const typeCheck = (value: any, type: DataType) => {
-  const isBasicType = type === DataType.Boolean || type === DataType.Number || type === DataType.String;
-  const isGenericListType = type === DataType.GenericList;
-  const isListOfBasicType =
-    type === DataType.BooleanList || type === DataType.NumberList || type === DataType.StringList;
-  const isObjectType = type === DataType.Object;
-
-  if (isBasicType) return typeof value === type;
-  if (isGenericListType || isListOfBasicType) {
-    if (!Array.isArray(value)) return false;
-    if (isListOfBasicType && value.length < 1) return false;
-    if (isGenericListType) return true;
-
-    return value.length === value.filter((x: any) => type.startsWith(typeof x)).length;
-  }
-  if (isObjectType) {
-    if (value === null) return false;
-    if (Array.isArray(value)) return false;
-    return typeof value === type;
-  }
-
-  return false;
 };

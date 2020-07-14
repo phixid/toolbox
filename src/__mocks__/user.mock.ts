@@ -1,5 +1,5 @@
-import { DataType } from '../index';
 import { mockAddress, mockAddressModel } from './address.mock';
+import { DataType } from '../lib/type-check';
 
 export const mockUserModel = {
   firstname: { required: true, type: DataType.String },
