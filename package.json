@@ -2,8 +2,6 @@
   "name": "toolbox",
   "version": "0.0.1",
   "description": "JavaScript utilities for copy-paste usage in other projects",
-  "main": "src/index.ts",
-  "module": "src/index.ts",
   "scripts": {
     "format": "prettier --write '**/*.{t,j}s'",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",

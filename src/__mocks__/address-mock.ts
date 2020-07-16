@@ -1,4 +1,4 @@
-import { DataType } from '..';
+import { DataType } from '../utils/type-check';
 
 export const mockAddressModel = {
   street: { required: true, type: DataType.String },
