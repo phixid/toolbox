@@ -1,19 +1,19 @@
-import { mockUser, mockUserModel, mockUserWithAddress, mockUserWithAddressModel } from './__mocks__/user.mock';
-import { validateWithModel } from './index';
-import { mockAddress } from './__mocks__/address.mock';
+import { mockAddress } from '../__mocks__/address-mock';
+import { mockUser, mockUserModel, mockUserWithAddress, mockUserWithAddressModel } from '../__mocks__/user-mock';
+import { modelValidate } from './model-validate';
 
-describe('validateWithModel', () => {
+describe('modelValidate', () => {
   test('is a function', () => {
-    expect(typeof validateWithModel).toEqual('function');
+    expect(typeof modelValidate).toEqual('function');
   });
 
   describe('isValid property', () => {
     test('is false when obj is not an object', async () => {
-      const { isValid: booleanIsValid } = await validateWithModel(true, mockUserModel);
-      const { isValid: numberIsValid } = await validateWithModel(1, mockUserModel);
-      const { isValid: stringIsValid } = await validateWithModel('', mockUserModel);
-      const { isValid: undefinedIsValid } = await validateWithModel(undefined, mockUserModel);
-      const { isValid: nullIsValid } = await validateWithModel(null, mockUserModel);
+      const { isValid: booleanIsValid } = await modelValidate(true, mockUserModel);
+      const { isValid: numberIsValid } = await modelValidate(1, mockUserModel);
+      const { isValid: stringIsValid } = await modelValidate('', mockUserModel);
+      const { isValid: undefinedIsValid } = await modelValidate(undefined, mockUserModel);
+      const { isValid: nullIsValid } = await modelValidate(null, mockUserModel);
 
       expect(booleanIsValid).toEqual(false);
       expect(numberIsValid).toEqual(false);
@@ -25,7 +25,7 @@ describe('validateWithModel', () => {
     test('is false when a required property is missing', async () => {
       const invalidUser = { ...mockUser };
       delete invalidUser.email;
-      const { isValid } = await validateWithModel(invalidUser, mockUserModel);
+      const { isValid } = await modelValidate(invalidUser, mockUserModel);
 
       expect(isValid).toEqual(false);
     });
@@ -34,13 +34,13 @@ describe('validateWithModel', () => {
       const invalidUser = { ...mockUser };
       // @ts-ignore
       invalidUser.firstname = 1;
-      const { isValid } = await validateWithModel(invalidUser, mockUserModel);
+      const { isValid } = await modelValidate(invalidUser, mockUserModel);
 
       expect(isValid).toEqual(false);
     });
 
     test('is true when required properties are present and types match', async () => {
-      const { isValid } = await validateWithModel(mockUser, mockUserModel);
+      const { isValid } = await modelValidate(mockUser, mockUserModel);
       expect(isValid).toEqual(true);
     });
 
@@ -51,7 +51,7 @@ describe('validateWithModel', () => {
       };
       delete testUser.address.street;
 
-      const { isValid } = await validateWithModel(testUser, mockUserWithAddressModel);
+      const { isValid } = await modelValidate(testUser, mockUserWithAddressModel);
 
       expect(isValid).toEqual(false);
     });
@@ -62,13 +62,13 @@ describe('validateWithModel', () => {
         address: { ...mockAddress, street: 1 },
       };
 
-      const { isValid } = await validateWithModel(testUser, mockUserWithAddressModel);
+      const { isValid } = await modelValidate(testUser, mockUserWithAddressModel);
 
       expect(isValid).toEqual(false);
     });
 
     test('is true when required nested properties are present and types match', async () => {
-      const { isValid } = await validateWithModel(mockUserWithAddress, mockUserWithAddressModel);
+      const { isValid } = await modelValidate(mockUserWithAddress, mockUserWithAddressModel);
 
       expect(isValid).toEqual(true);
     });
@@ -76,7 +76,7 @@ describe('validateWithModel', () => {
 
   describe('errors property', () => {
     test('is null when there are no errors', async () => {
-      const { errors } = await validateWithModel(mockUser, mockUserModel);
+      const { errors } = await modelValidate(mockUser, mockUserModel);
 
       expect(errors).toEqual(null);
     });
@@ -87,17 +87,17 @@ describe('validateWithModel', () => {
       // @ts-ignore
       invalidUser.lastname = 1;
 
-      const { errors } = await validateWithModel(invalidUser, mockUserModel);
+      const { errors } = await modelValidate(invalidUser, mockUserModel);
 
       expect(errors?.length).toEqual(3);
     });
 
     test('has a formatted error when obj is of the wrong type', async () => {
-      const { errors: booleanErrors } = await validateWithModel(true, mockUserModel);
-      const { errors: numberErrors } = await validateWithModel(1, mockUserModel);
-      const { errors: stringErrors } = await validateWithModel('', mockUserModel);
-      const { errors: undefinedErrors } = await validateWithModel(undefined, mockUserModel);
-      const { errors: nullErrors } = await validateWithModel(null, mockUserModel);
+      const { errors: booleanErrors } = await modelValidate(true, mockUserModel);
+      const { errors: numberErrors } = await modelValidate(1, mockUserModel);
+      const { errors: stringErrors } = await modelValidate('', mockUserModel);
+      const { errors: undefinedErrors } = await modelValidate(undefined, mockUserModel);
+      const { errors: nullErrors } = await modelValidate(null, mockUserModel);
 
       expect(booleanErrors?.[0]).toEqual('Model validation error: obj is of type boolean');
       expect(numberErrors?.[0]).toEqual('Model validation error: obj is of type number');
@@ -110,7 +110,7 @@ describe('validateWithModel', () => {
       const invalidUser = { ...mockUser };
       delete invalidUser.firstname;
 
-      const { errors } = await validateWithModel(invalidUser, mockUserModel);
+      const { errors } = await modelValidate(invalidUser, mockUserModel);
 
       expect(errors?.[0]).toEqual('Model validation error: missing required property firstname');
     });
@@ -119,7 +119,7 @@ describe('validateWithModel', () => {
       const testUser = { ...mockUserWithAddress };
       delete testUser.address.street;
 
-      const { errors, isValid } = await validateWithModel(testUser, mockUserWithAddressModel);
+      const { errors, isValid } = await modelValidate(testUser, mockUserWithAddressModel);
 
       expect(errors?.[0]).toEqual('Model validation error: missing required property street');
       expect(isValid).toEqual(false);
@@ -130,7 +130,7 @@ describe('validateWithModel', () => {
       // @ts-ignore
       invalidUser.firstname = 1;
 
-      const { errors } = await validateWithModel(invalidUser, mockUserModel);
+      const { errors } = await modelValidate(invalidUser, mockUserModel);
 
       expect(errors?.[0]).toEqual('Model validation error: property firstname has type number expected type string');
     });
@@ -142,7 +142,7 @@ describe('validateWithModel', () => {
       // @ts-ignore
       testUser.address.city = true;
 
-      const { errors, isValid } = await validateWithModel(testUser, mockUserWithAddressModel);
+      const { errors, isValid } = await modelValidate(testUser, mockUserWithAddressModel);
 
       expect(errors?.[0]).toEqual('Model validation error: property street has type number expected type string');
       expect(isValid).toEqual(false);

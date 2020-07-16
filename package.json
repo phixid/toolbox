@@ -1,10 +1,10 @@
 {
-  "name": "model-validator",
+  "name": "toolbox",
   "version": "0.0.1",
-  "description": "Run-time model and type validation for JavaScript",
-  "main": "index.js",
+  "description": "JavaScript utilities for copy-paste usage in other projects",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
   "scripts": {
-    "build": "rollup -c",
     "format": "prettier --write '**/*.{t,j}s'",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "test": "jest",
@@ -18,9 +18,13 @@
     }
   },
   "lint-staged": {
-    "*.ts": ["prettier --write", "tslint"],
+    "*.ts": [
+      "prettier --write",
+      "tslint"
+    ],
     "*.js": "prettier --write"
   },
+  "dependencies": {},
   "devDependencies": {
     "@rollup/plugin-typescript": "^5.0.0",
     "@types/jest": "^26.0.3",
@@ -29,17 +33,16 @@
     "jest": "^26.1.0",
     "lint-staged": "^10.2.11",
     "prettier": "^2.0.5",
-    "rollup": "^2.18.0",
     "ts-jest": "^26.1.1",
     "tslint": "^6.1.2",
     "typescript": "^3.9.5"
   },
   "keywords": [
-    "type",
-    "model",
-    "validation",
-    "runtime"
+    "utilities",
+    "model-validation",
+    "type-checking"
   ],
   "author": "Kristof Hermans <kristof.hermans.kh@gmail.com>",
-  "license": "MIT"
+  "license": "UNLICENSED",
+  "private": true
 }
