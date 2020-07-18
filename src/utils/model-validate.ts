@@ -1,9 +1,9 @@
-import { DataType, typeCheck } from './type-check';
+import { NonPrimitive, Primitive, typeCheck } from './type-check';
 
 export type Model = {
   [key: string]: {
     required?: boolean;
-    type: DataType;
+    type: NonPrimitive | Primitive;
     model?: Model;
   };
 };
@@ -47,7 +47,8 @@ const checkForRequiredProperties = (model: Model, obj: any): RequiredPropertiesR
         const isDefined = obj[requiredKey] !== undefined;
         if (!isDefined) errors.push(`Model validation error: missing required property ${requiredKey}`);
 
-        const isNestedObject = requiredValue.type === DataType.Object && typeCheck(obj[requiredKey], DataType.Object);
+        const isNestedObject =
+          requiredValue.type === NonPrimitive.Object && typeCheck(obj[requiredKey], NonPrimitive.Object);
         if (isNestedObject && requiredValue.model) {
           const {
             errors: nestedErrors,
@@ -89,7 +90,7 @@ const checkForMatchingPropertyTypes = (model: Model, obj: any): MatchingProperty
         errors.push(`Model validation error: property ${key} has type ${typeof obj[key]} expected type ${value.type}`);
       }
 
-      const isNestedObject = value.type === DataType.Object && typeCheck(obj[key], DataType.Object);
+      const isNestedObject = value.type === NonPrimitive.Object && typeCheck(obj[key], NonPrimitive.Object);
       if (isNestedObject && value.model) {
         const {
           errors: nestedErrors,

@@ -1,10 +1,10 @@
-import { DataType } from '../utils/type-check';
+import { Primitive } from '../utils/type-check';
 
 export const mockAddressModel = {
-  street: { required: true, type: DataType.String },
-  number: { required: true, type: DataType.String },
-  postalCode: { required: true, type: DataType.String },
-  city: { required: true, type: DataType.String },
+  street: { required: true, type: Primitive.String },
+  number: { required: true, type: Primitive.String },
+  postalCode: { required: true, type: Primitive.String },
+  city: { required: true, type: Primitive.String },
 };
 
 export const mockAddress = {

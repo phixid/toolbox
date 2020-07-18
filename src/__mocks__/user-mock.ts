@@ -1,18 +1,18 @@
 import { mockAddress, mockAddressModel } from './address-mock';
-import { DataType } from '../utils/type-check';
+import { NonPrimitive, Primitive } from '../utils/type-check';
 
 export const mockUserModel = {
-  firstname: { required: true, type: DataType.String },
-  lastname: { required: true, type: DataType.String },
-  email: { required: true, type: DataType.String },
-  phone: { type: DataType.String },
+  firstname: { required: true, type: Primitive.String },
+  lastname: { required: true, type: Primitive.String },
+  email: { required: true, type: Primitive.String },
+  phone: { type: Primitive.String },
 };
 
 export const mockUserWithAddressModel = {
   ...mockUserModel,
   address: {
     required: true,
-    type: DataType.Object,
+    type: NonPrimitive.Object,
     model: mockAddressModel,
   },
 };

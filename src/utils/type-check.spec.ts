@@ -1,138 +1,138 @@
-import { DataType, typeCheck } from './type-check';
+import { NonPrimitive, Primitive, typeCheck } from './type-check';
 
 describe('typeCheck', () => {
   test('handles booleans', () => {
-    expect(typeCheck(false, DataType.Boolean)).toEqual(true);
-    expect(typeCheck(true, DataType.Boolean)).toEqual(true);
-    expect(typeCheck(0, DataType.Boolean)).toEqual(false);
-    expect(typeCheck(1, DataType.Boolean)).toEqual(false);
-    expect(typeCheck('test', DataType.Boolean)).toEqual(false);
-    expect(typeCheck([], DataType.Boolean)).toEqual(false);
-    expect(typeCheck({}, DataType.Boolean)).toEqual(false);
-    expect(typeCheck(null, DataType.Boolean)).toEqual(false);
-    expect(typeCheck(undefined, DataType.Boolean)).toEqual(false);
+    expect(typeCheck(false, Primitive.Boolean)).toEqual(true);
+    expect(typeCheck(true, Primitive.Boolean)).toEqual(true);
+    expect(typeCheck(0, Primitive.Boolean)).toEqual(false);
+    expect(typeCheck(1, Primitive.Boolean)).toEqual(false);
+    expect(typeCheck('test', Primitive.Boolean)).toEqual(false);
+    expect(typeCheck([], Primitive.Boolean)).toEqual(false);
+    expect(typeCheck({}, Primitive.Boolean)).toEqual(false);
+    expect(typeCheck(null, Primitive.Boolean)).toEqual(false);
+    expect(typeCheck(undefined, Primitive.Boolean)).toEqual(false);
   });
 
   test('handles array of booleans', () => {
-    expect(typeCheck([false, true], DataType.BooleanList)).toEqual(true);
-    expect(typeCheck([false, true, 0], DataType.BooleanList)).toEqual(false);
-    expect(typeCheck([false, true, 1], DataType.BooleanList)).toEqual(false);
-    expect(typeCheck([false, true, ''], DataType.BooleanList)).toEqual(false);
-    expect(typeCheck([false, true, 'test'], DataType.BooleanList)).toEqual(false);
-    expect(typeCheck([false, true, []], DataType.BooleanList)).toEqual(false);
-    expect(typeCheck([false, true, {}], DataType.BooleanList)).toEqual(false);
-    expect(typeCheck([false, true, null], DataType.BooleanList)).toEqual(false);
-    expect(typeCheck([false, true, undefined], DataType.BooleanList)).toEqual(false);
+    expect(typeCheck([false, true], NonPrimitive.ListBoolean)).toEqual(true);
+    expect(typeCheck([false, true, 0], NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck([false, true, 1], NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck([false, true, ''], NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck([false, true, 'test'], NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck([false, true, []], NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck([false, true, {}], NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck([false, true, null], NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck([false, true, undefined], NonPrimitive.ListBoolean)).toEqual(false);
 
-    expect(typeCheck('', DataType.BooleanList)).toEqual(false);
-    expect(typeCheck('test', DataType.BooleanList)).toEqual(false);
-    expect(typeCheck(0, DataType.BooleanList)).toEqual(false);
-    expect(typeCheck(1, DataType.BooleanList)).toEqual(false);
-    expect(typeCheck(false, DataType.BooleanList)).toEqual(false);
-    expect(typeCheck(true, DataType.BooleanList)).toEqual(false);
-    expect(typeCheck([], DataType.BooleanList)).toEqual(false);
-    expect(typeCheck({}, DataType.BooleanList)).toEqual(false);
-    expect(typeCheck(null, DataType.BooleanList)).toEqual(false);
-    expect(typeCheck(undefined, DataType.BooleanList)).toEqual(false);
+    expect(typeCheck('', NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck('test', NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck(0, NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck(1, NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck(false, NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck(true, NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck([], NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck({}, NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck(null, NonPrimitive.ListBoolean)).toEqual(false);
+    expect(typeCheck(undefined, NonPrimitive.ListBoolean)).toEqual(false);
   });
 
   test('handles numbers', () => {
-    expect(typeCheck(0, DataType.Number)).toEqual(true);
-    expect(typeCheck(1, DataType.Number)).toEqual(true);
-    expect(typeCheck(false, DataType.Number)).toEqual(false);
-    expect(typeCheck(true, DataType.Number)).toEqual(false);
-    expect(typeCheck('test', DataType.Number)).toEqual(false);
-    expect(typeCheck([], DataType.Number)).toEqual(false);
-    expect(typeCheck({}, DataType.Number)).toEqual(false);
-    expect(typeCheck(null, DataType.Number)).toEqual(false);
-    expect(typeCheck(undefined, DataType.Number)).toEqual(false);
+    expect(typeCheck(0, Primitive.Number)).toEqual(true);
+    expect(typeCheck(1, Primitive.Number)).toEqual(true);
+    expect(typeCheck(false, Primitive.Number)).toEqual(false);
+    expect(typeCheck(true, Primitive.Number)).toEqual(false);
+    expect(typeCheck('test', Primitive.Number)).toEqual(false);
+    expect(typeCheck([], Primitive.Number)).toEqual(false);
+    expect(typeCheck({}, Primitive.Number)).toEqual(false);
+    expect(typeCheck(null, Primitive.Number)).toEqual(false);
+    expect(typeCheck(undefined, Primitive.Number)).toEqual(false);
   });
 
   test('handles array of numbers', () => {
-    expect(typeCheck([0, 1], DataType.NumberList)).toEqual(true);
-    expect(typeCheck([0, 1, false], DataType.NumberList)).toEqual(false);
-    expect(typeCheck([0, 1, true], DataType.NumberList)).toEqual(false);
-    expect(typeCheck([0, 1, ''], DataType.NumberList)).toEqual(false);
-    expect(typeCheck([0, 1, 'test'], DataType.NumberList)).toEqual(false);
-    expect(typeCheck([0, 1, []], DataType.NumberList)).toEqual(false);
-    expect(typeCheck([0, 1, {}], DataType.NumberList)).toEqual(false);
-    expect(typeCheck([0, 1, null], DataType.NumberList)).toEqual(false);
-    expect(typeCheck([0, 1, undefined], DataType.NumberList)).toEqual(false);
+    expect(typeCheck([0, 1], NonPrimitive.ListNumber)).toEqual(true);
+    expect(typeCheck([0, 1, false], NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck([0, 1, true], NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck([0, 1, ''], NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck([0, 1, 'test'], NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck([0, 1, []], NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck([0, 1, {}], NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck([0, 1, null], NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck([0, 1, undefined], NonPrimitive.ListNumber)).toEqual(false);
 
-    expect(typeCheck('', DataType.NumberList)).toEqual(false);
-    expect(typeCheck('test', DataType.NumberList)).toEqual(false);
-    expect(typeCheck(0, DataType.NumberList)).toEqual(false);
-    expect(typeCheck(1, DataType.NumberList)).toEqual(false);
-    expect(typeCheck(false, DataType.NumberList)).toEqual(false);
-    expect(typeCheck(true, DataType.NumberList)).toEqual(false);
-    expect(typeCheck([], DataType.NumberList)).toEqual(false);
-    expect(typeCheck({}, DataType.NumberList)).toEqual(false);
-    expect(typeCheck(null, DataType.NumberList)).toEqual(false);
-    expect(typeCheck(undefined, DataType.NumberList)).toEqual(false);
+    expect(typeCheck('', NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck('test', NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck(0, NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck(1, NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck(false, NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck(true, NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck([], NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck({}, NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck(null, NonPrimitive.ListNumber)).toEqual(false);
+    expect(typeCheck(undefined, NonPrimitive.ListNumber)).toEqual(false);
   });
 
   test('handles strings', () => {
-    expect(typeCheck('', DataType.String)).toEqual(true);
-    expect(typeCheck('test', DataType.String)).toEqual(true);
-    expect(typeCheck(0, DataType.String)).toEqual(false);
-    expect(typeCheck(1, DataType.String)).toEqual(false);
-    expect(typeCheck(false, DataType.String)).toEqual(false);
-    expect(typeCheck(true, DataType.String)).toEqual(false);
-    expect(typeCheck([], DataType.String)).toEqual(false);
-    expect(typeCheck({}, DataType.String)).toEqual(false);
-    expect(typeCheck(null, DataType.String)).toEqual(false);
-    expect(typeCheck(undefined, DataType.String)).toEqual(false);
+    expect(typeCheck('', Primitive.String)).toEqual(true);
+    expect(typeCheck('test', Primitive.String)).toEqual(true);
+    expect(typeCheck(0, Primitive.String)).toEqual(false);
+    expect(typeCheck(1, Primitive.String)).toEqual(false);
+    expect(typeCheck(false, Primitive.String)).toEqual(false);
+    expect(typeCheck(true, Primitive.String)).toEqual(false);
+    expect(typeCheck([], Primitive.String)).toEqual(false);
+    expect(typeCheck({}, Primitive.String)).toEqual(false);
+    expect(typeCheck(null, Primitive.String)).toEqual(false);
+    expect(typeCheck(undefined, Primitive.String)).toEqual(false);
   });
 
   test('handles array of string', () => {
-    expect(typeCheck(['', 'test'], DataType.StringList)).toEqual(true);
-    expect(typeCheck(['', 'test', false], DataType.StringList)).toEqual(false);
-    expect(typeCheck(['', 'test', true], DataType.StringList)).toEqual(false);
-    expect(typeCheck(['', 'test', 0], DataType.StringList)).toEqual(false);
-    expect(typeCheck(['', 'test', 1], DataType.StringList)).toEqual(false);
-    expect(typeCheck(['', 'test', []], DataType.StringList)).toEqual(false);
-    expect(typeCheck(['', 'test', {}], DataType.StringList)).toEqual(false);
-    expect(typeCheck(['', 'test', null], DataType.StringList)).toEqual(false);
-    expect(typeCheck(['', 'test', undefined], DataType.StringList)).toEqual(false);
+    expect(typeCheck(['', 'test'], NonPrimitive.ListString)).toEqual(true);
+    expect(typeCheck(['', 'test', false], NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(['', 'test', true], NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(['', 'test', 0], NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(['', 'test', 1], NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(['', 'test', []], NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(['', 'test', {}], NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(['', 'test', null], NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(['', 'test', undefined], NonPrimitive.ListString)).toEqual(false);
 
-    expect(typeCheck('', DataType.StringList)).toEqual(false);
-    expect(typeCheck('test', DataType.StringList)).toEqual(false);
-    expect(typeCheck(0, DataType.StringList)).toEqual(false);
-    expect(typeCheck(1, DataType.StringList)).toEqual(false);
-    expect(typeCheck(false, DataType.StringList)).toEqual(false);
-    expect(typeCheck(true, DataType.StringList)).toEqual(false);
-    expect(typeCheck([], DataType.StringList)).toEqual(false);
-    expect(typeCheck({}, DataType.StringList)).toEqual(false);
-    expect(typeCheck(null, DataType.StringList)).toEqual(false);
-    expect(typeCheck(undefined, DataType.StringList)).toEqual(false);
+    expect(typeCheck('', NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck('test', NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(0, NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(1, NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(false, NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(true, NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck([], NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck({}, NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(null, NonPrimitive.ListString)).toEqual(false);
+    expect(typeCheck(undefined, NonPrimitive.ListString)).toEqual(false);
   });
 
   test('handles array of multiple types (strings, numbers and booleans)', () => {
-    expect(typeCheck(['', 'test', 0, 1, false, true, [], {}, null, undefined], DataType.GenericList)).toEqual(true);
+    expect(typeCheck(['', 'test', 0, 1, false, true, [], {}, null, undefined], NonPrimitive.ListAny)).toEqual(true);
 
-    expect(typeCheck('', DataType.GenericList)).toEqual(false);
-    expect(typeCheck('test', DataType.GenericList)).toEqual(false);
-    expect(typeCheck(0, DataType.GenericList)).toEqual(false);
-    expect(typeCheck(1, DataType.GenericList)).toEqual(false);
-    expect(typeCheck(false, DataType.GenericList)).toEqual(false);
-    expect(typeCheck(true, DataType.GenericList)).toEqual(false);
-    expect(typeCheck([], DataType.GenericList)).toEqual(true);
-    expect(typeCheck({}, DataType.GenericList)).toEqual(false);
-    expect(typeCheck(null, DataType.GenericList)).toEqual(false);
-    expect(typeCheck(undefined, DataType.GenericList)).toEqual(false);
+    expect(typeCheck('', NonPrimitive.ListAny)).toEqual(false);
+    expect(typeCheck('test', NonPrimitive.ListAny)).toEqual(false);
+    expect(typeCheck(0, NonPrimitive.ListAny)).toEqual(false);
+    expect(typeCheck(1, NonPrimitive.ListAny)).toEqual(false);
+    expect(typeCheck(false, NonPrimitive.ListAny)).toEqual(false);
+    expect(typeCheck(true, NonPrimitive.ListAny)).toEqual(false);
+    expect(typeCheck([], NonPrimitive.ListAny)).toEqual(true);
+    expect(typeCheck({}, NonPrimitive.ListAny)).toEqual(false);
+    expect(typeCheck(null, NonPrimitive.ListAny)).toEqual(false);
+    expect(typeCheck(undefined, NonPrimitive.ListAny)).toEqual(false);
   });
 
   test('handles objects', () => {
-    expect(typeCheck({}, DataType.Object)).toEqual(true);
-    expect(typeCheck('', DataType.Object)).toEqual(false);
-    expect(typeCheck('test', DataType.Object)).toEqual(false);
-    expect(typeCheck(0, DataType.Object)).toEqual(false);
-    expect(typeCheck(1, DataType.Object)).toEqual(false);
-    expect(typeCheck(false, DataType.Object)).toEqual(false);
-    expect(typeCheck(true, DataType.Object)).toEqual(false);
-    expect(typeCheck([], DataType.Object)).toEqual(false);
-    expect(typeCheck(null, DataType.Object)).toEqual(false);
-    expect(typeCheck(undefined, DataType.Object)).toEqual(false);
+    expect(typeCheck({}, NonPrimitive.Object)).toEqual(true);
+    expect(typeCheck('', NonPrimitive.Object)).toEqual(false);
+    expect(typeCheck('test', NonPrimitive.Object)).toEqual(false);
+    expect(typeCheck(0, NonPrimitive.Object)).toEqual(false);
+    expect(typeCheck(1, NonPrimitive.Object)).toEqual(false);
+    expect(typeCheck(false, NonPrimitive.Object)).toEqual(false);
+    expect(typeCheck(true, NonPrimitive.Object)).toEqual(false);
+    expect(typeCheck([], NonPrimitive.Object)).toEqual(false);
+    expect(typeCheck(null, NonPrimitive.Object)).toEqual(false);
+    expect(typeCheck(undefined, NonPrimitive.Object)).toEqual(false);
   });
 
   test('handles incorrect type', () => {

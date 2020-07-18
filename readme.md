@@ -5,4 +5,5 @@
 
 ## Utilities
 - model-validate
+- range
 - type-check
