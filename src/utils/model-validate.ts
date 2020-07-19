@@ -1,7 +1,4 @@
-import { TypeValidation } from './type-check';
-import NonPrimitives = TypeValidation.NonPrimitives;
-import Primitives = TypeValidation.Primitives;
-import TypeChecker = TypeValidation.TypeChecker;
+import { NonPrimitives, Primitives, TypeValidator } from './type-check';
 
 export type Model = {
   [key: string]: {
@@ -24,8 +21,11 @@ export const modelValidate = async (obj: any, model: Model) => {
     };
   }
 
-  const { errors: requiredPropertyErrors, hasRequiredProperties } = checkForRequiredProperties(model, obj);
-  const { errors: matchingPropertyTypeErrors, hasMatchingPropertyTypes } = checkForMatchingPropertyTypes(model, obj);
+  const { errors: requiredPropertyErrors, hasRequiredProperties } = await checkForRequiredProperties(model, obj);
+  const { errors: matchingPropertyTypeErrors, hasMatchingPropertyTypes } = await checkForMatchingPropertyTypes(
+    model,
+    obj
+  );
   const aggregateErrors = [...requiredPropertyErrors, ...matchingPropertyTypeErrors];
 
   return {
@@ -50,7 +50,7 @@ const checkForRequiredProperties = (model: Model, obj: any): RequiredPropertiesR
         const isDefined = obj[requiredKey] !== undefined;
         if (!isDefined) errors.push(`Model validation error: missing required property ${requiredKey}`);
 
-        const isNestedObject = new TypeChecker(NonPrimitives.Object).match(obj[requiredKey]);
+        const isNestedObject = new TypeValidator(NonPrimitives.Object).validate(obj[requiredKey]);
         if (isNestedObject && requiredValue.model) {
           const {
             errors: nestedErrors,
@@ -86,13 +86,13 @@ const checkForMatchingPropertyTypes = (model: Model, obj: any): MatchingProperty
     (acc: MatchingPropertyTypesReturnType, [key, value]) => {
       const errors: string[] = [...acc.errors];
       const canBeUndefined = !value.required && obj[key] === undefined;
-      const isMatchingPropertyType = new TypeChecker(value.type).match(obj[key]);
+      const isMatchingPropertyType = new TypeValidator(value.type).validate(obj[key]);
 
       if (!canBeUndefined && !isMatchingPropertyType) {
         errors.push(`Model validation error: property ${key} has type ${typeof obj[key]} expected type ${value.type}`);
       }
 
-      const isNestedObject = new TypeChecker(NonPrimitives.Object).match(obj[key]);
+      const isNestedObject = new TypeValidator(NonPrimitives.Object).validate(obj[key]);
       if (isNestedObject && value.model) {
         const {
           errors: nestedErrors,

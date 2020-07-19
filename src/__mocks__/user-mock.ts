@@ -1,7 +1,5 @@
 import { mockAddress, mockAddressModel } from './address-mock';
-import { TypeValidation } from '../utils/type-check';
-import NonPrimitives = TypeValidation.NonPrimitives;
-import Primitives = TypeValidation.Primitives;
+import { NonPrimitives, Primitives } from '../utils/type-check';
 
 export const mockUserModel = {
   firstname: { required: true, type: Primitives.String },
