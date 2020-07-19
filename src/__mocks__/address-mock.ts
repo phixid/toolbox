@@ -1,4 +1,4 @@
-import { Primitives } from '../utils/type-check';
+import { Primitives } from '../utils/type-validator';
 
 export const mockAddressModel = {
   street: { required: true, type: Primitives.String },

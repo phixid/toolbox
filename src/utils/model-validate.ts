@@ -1,4 +1,4 @@
-import { NonPrimitives, Primitives, TypeValidator } from './type-check';
+import { NonPrimitives, Primitives, TypeValidator } from './type-validator';
 
 export type Model = {
   [key: string]: {
