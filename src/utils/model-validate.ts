@@ -1,9 +1,12 @@
-import { NonPrimitive, Primitive, typeCheck } from './type-check';
+import { TypeValidation } from './type-check';
+import NonPrimitives = TypeValidation.NonPrimitives;
+import Primitives = TypeValidation.Primitives;
+import TypeChecker = TypeValidation.TypeChecker;
 
 export type Model = {
   [key: string]: {
     required?: boolean;
-    type: NonPrimitive | Primitive;
+    type: NonPrimitives | Primitives;
     model?: Model;
   };
 };
@@ -47,8 +50,7 @@ const checkForRequiredProperties = (model: Model, obj: any): RequiredPropertiesR
         const isDefined = obj[requiredKey] !== undefined;
         if (!isDefined) errors.push(`Model validation error: missing required property ${requiredKey}`);
 
-        const isNestedObject =
-          requiredValue.type === NonPrimitive.Object && typeCheck(obj[requiredKey], NonPrimitive.Object);
+        const isNestedObject = new TypeChecker(NonPrimitives.Object).match(obj[requiredKey]);
         if (isNestedObject && requiredValue.model) {
           const {
             errors: nestedErrors,
@@ -84,13 +86,13 @@ const checkForMatchingPropertyTypes = (model: Model, obj: any): MatchingProperty
     (acc: MatchingPropertyTypesReturnType, [key, value]) => {
       const errors: string[] = [...acc.errors];
       const canBeUndefined = !value.required && obj[key] === undefined;
-      const isMatchingPropertyType = typeCheck(obj[key], value.type);
+      const isMatchingPropertyType = new TypeChecker(value.type).match(obj[key]);
 
       if (!canBeUndefined && !isMatchingPropertyType) {
         errors.push(`Model validation error: property ${key} has type ${typeof obj[key]} expected type ${value.type}`);
       }
 
-      const isNestedObject = value.type === NonPrimitive.Object && typeCheck(obj[key], NonPrimitive.Object);
+      const isNestedObject = new TypeChecker(NonPrimitives.Object).match(obj[key]);
       if (isNestedObject && value.model) {
         const {
           errors: nestedErrors,

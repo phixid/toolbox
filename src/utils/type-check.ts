@@ -1,57 +1,58 @@
-export enum Primitive {
-  Boolean = 'boolean',
-  Number = 'number',
-  String = 'string',
-}
-
-export enum NonPrimitive {
-  ListAny = '[]',
-  ListBoolean = 'boolean[]',
-  ListNumber = 'number[]',
-  ListString = 'string[]',
-  Object = 'object',
-}
-
-type ListPrimitive = NonPrimitive.ListBoolean | NonPrimitive.ListNumber | NonPrimitive.ListString;
-
-class Datatype {
-  static isPrimitive = (type: any): type is Primitive =>
-    type === Primitive.Boolean || type === Primitive.Number || type === Primitive.String;
-
-  static checkPrimitive(value: any, type: Primitive): boolean {
-    return typeof value === type;
+export namespace TypeValidation {
+  export enum Primitives {
+    Boolean = 'boolean',
+    Number = 'number',
+    String = 'string',
   }
 
-  static isList = (type: any): type is NonPrimitive => Datatype.isListOfAny(type) || Datatype.isListOfPrimitives(type);
-  static isListOfAny = (type: any): type is NonPrimitive.ListAny => type === NonPrimitive.ListAny;
-  static isListOfPrimitives = (type: any): type is ListPrimitive =>
-    type === NonPrimitive.ListBoolean || type === NonPrimitive.ListNumber || type === NonPrimitive.ListString;
-
-  static checkList(value: any, type: NonPrimitive) {
-    if (!Array.isArray(value)) return false;
-    if (Datatype.isListOfAny(type)) return true;
-    if (Datatype.isListOfPrimitives(type) && value.length < 1) return false;
-
-    return value.length === value.filter((x: any) => type.startsWith(typeof x)).length;
+  export enum NonPrimitives {
+    ListAny = '[]',
+    ListBoolean = 'boolean[]',
+    ListNumber = 'number[]',
+    ListString = 'string[]',
+    Object = 'object',
   }
 
-  static isObject = (type: any): type is NonPrimitive.Object => type === NonPrimitive.Object;
+  export class TypeChecker {
+    private readonly type: NonPrimitives | Primitives;
 
-  static checkObject(value: any, type: NonPrimitive.Object) {
-    if (value === null) return false;
-    if (Array.isArray(value)) return false;
-    return typeof value === type;
+    constructor(type: NonPrimitives | Primitives) {
+      this.type = type;
+    }
+
+    public match = (value: any): boolean => {
+      if (this.typeIsPrimitive()) return this.valueIsPrimitive(value);
+      if (this.typeIsNonPrimitive()) {
+        if (this.typeIsListOfAny() || this.typeIsListOfPrimitives()) return this.valueIsList(value);
+        if (this.typeIsObject()) return this.valueIsObject(value);
+      }
+      return false;
+    };
+
+    private typeIsPrimitive = (): boolean => Object.values(Primitives as any).includes(this.type);
+    private typeIsNonPrimitive = (): boolean => Object.values(NonPrimitives as any).includes(this.type);
+    private typeIsListOfAny = (): boolean => this.type === NonPrimitives.ListAny;
+    private typeIsListOfPrimitives = (): boolean => {
+      return (
+        this.type === NonPrimitives.ListBoolean ||
+        this.type === NonPrimitives.ListNumber ||
+        this.type === NonPrimitives.ListString
+      );
+    };
+    private typeIsObject = (): boolean => this.type === NonPrimitives.Object;
+
+    private valueIsPrimitive = (value: any): boolean => typeof value === this.type;
+    private valueIsList(value: any) {
+      if (!Array.isArray(value)) return false;
+      if (this.typeIsListOfAny()) return true;
+      if (this.typeIsListOfPrimitives() && value.length < 1) return false;
+
+      return value.length === value.filter((x: any) => this.type.startsWith(typeof x)).length;
+    }
+    private valueIsObject = (value: any) => {
+      if (value === null) return false;
+      if (Array.isArray(value)) return false;
+      return typeof value === this.type;
+    };
   }
 }
-
-/**
- * Check if a value is of a certain type
- * @param value
- * @param type
- */
-export const typeCheck = (value: any, type: Primitive | NonPrimitive) => {
-  if (Datatype.isPrimitive(type)) return Datatype.checkPrimitive(value, type);
-  if (Datatype.isList(type)) return Datatype.checkList(value, type);
-  if (Datatype.isObject(type)) return Datatype.checkObject(value, type);
-  return false;
-};

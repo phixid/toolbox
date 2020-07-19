@@ -1,10 +1,11 @@
-import { Primitive } from '../utils/type-check';
+import { TypeValidation } from '../utils/type-check';
+import Primitives = TypeValidation.Primitives;
 
 export const mockAddressModel = {
-  street: { required: true, type: Primitive.String },
-  number: { required: true, type: Primitive.String },
-  postalCode: { required: true, type: Primitive.String },
-  city: { required: true, type: Primitive.String },
+  street: { required: true, type: Primitives.String },
+  number: { required: true, type: Primitives.String },
+  postalCode: { required: true, type: Primitives.String },
+  city: { required: true, type: Primitives.String },
 };
 
 export const mockAddress = {

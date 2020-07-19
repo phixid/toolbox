@@ -1,142 +1,170 @@
-import { NonPrimitive, Primitive, typeCheck } from './type-check';
+import { TypeValidation } from './type-check';
+import Primitives = TypeValidation.Primitives;
+import NonPrimitives = TypeValidation.NonPrimitives;
+import TypeChecker = TypeValidation.TypeChecker;
 
-describe('typeCheck', () => {
+describe('TypeChecker', () => {
   test('handles booleans', () => {
-    expect(typeCheck(false, Primitive.Boolean)).toEqual(true);
-    expect(typeCheck(true, Primitive.Boolean)).toEqual(true);
-    expect(typeCheck(0, Primitive.Boolean)).toEqual(false);
-    expect(typeCheck(1, Primitive.Boolean)).toEqual(false);
-    expect(typeCheck('test', Primitive.Boolean)).toEqual(false);
-    expect(typeCheck([], Primitive.Boolean)).toEqual(false);
-    expect(typeCheck({}, Primitive.Boolean)).toEqual(false);
-    expect(typeCheck(null, Primitive.Boolean)).toEqual(false);
-    expect(typeCheck(undefined, Primitive.Boolean)).toEqual(false);
+    const booleanChecker = new TypeChecker(Primitives.Boolean);
+
+    expect(booleanChecker.match(false)).toEqual(true);
+    expect(booleanChecker.match(true)).toEqual(true);
+    expect(booleanChecker.match(0)).toEqual(false);
+    expect(booleanChecker.match(1)).toEqual(false);
+    expect(booleanChecker.match('test')).toEqual(false);
+    expect(booleanChecker.match([])).toEqual(false);
+    expect(booleanChecker.match({})).toEqual(false);
+    expect(booleanChecker.match(null)).toEqual(false);
+    expect(booleanChecker.match(undefined)).toEqual(false);
   });
 
   test('handles array of booleans', () => {
-    expect(typeCheck([false, true], NonPrimitive.ListBoolean)).toEqual(true);
-    expect(typeCheck([false, true, 0], NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck([false, true, 1], NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck([false, true, ''], NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck([false, true, 'test'], NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck([false, true, []], NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck([false, true, {}], NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck([false, true, null], NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck([false, true, undefined], NonPrimitive.ListBoolean)).toEqual(false);
+    const booleanListChecker = new TypeChecker(NonPrimitives.ListBoolean);
 
-    expect(typeCheck('', NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck('test', NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck(0, NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck(1, NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck(false, NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck(true, NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck([], NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck({}, NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck(null, NonPrimitive.ListBoolean)).toEqual(false);
-    expect(typeCheck(undefined, NonPrimitive.ListBoolean)).toEqual(false);
+    expect(booleanListChecker.match([false, true])).toEqual(true);
+    expect(booleanListChecker.match([false, true, 0])).toEqual(false);
+    expect(booleanListChecker.match([false, true, 1])).toEqual(false);
+    expect(booleanListChecker.match([false, true, ''])).toEqual(false);
+    expect(booleanListChecker.match([false, true, 'test'])).toEqual(false);
+    expect(booleanListChecker.match([false, true, []])).toEqual(false);
+    expect(booleanListChecker.match([false, true, {}])).toEqual(false);
+    expect(booleanListChecker.match([false, true, null])).toEqual(false);
+    expect(booleanListChecker.match([false, true, undefined])).toEqual(false);
+
+    expect(booleanListChecker.match('')).toEqual(false);
+    expect(booleanListChecker.match('test')).toEqual(false);
+    expect(booleanListChecker.match(0)).toEqual(false);
+    expect(booleanListChecker.match(1)).toEqual(false);
+    expect(booleanListChecker.match(false)).toEqual(false);
+    expect(booleanListChecker.match(true)).toEqual(false);
+    expect(booleanListChecker.match([])).toEqual(false);
+    expect(booleanListChecker.match({})).toEqual(false);
+    expect(booleanListChecker.match(null)).toEqual(false);
+    expect(booleanListChecker.match(undefined)).toEqual(false);
   });
 
   test('handles numbers', () => {
-    expect(typeCheck(0, Primitive.Number)).toEqual(true);
-    expect(typeCheck(1, Primitive.Number)).toEqual(true);
-    expect(typeCheck(false, Primitive.Number)).toEqual(false);
-    expect(typeCheck(true, Primitive.Number)).toEqual(false);
-    expect(typeCheck('test', Primitive.Number)).toEqual(false);
-    expect(typeCheck([], Primitive.Number)).toEqual(false);
-    expect(typeCheck({}, Primitive.Number)).toEqual(false);
-    expect(typeCheck(null, Primitive.Number)).toEqual(false);
-    expect(typeCheck(undefined, Primitive.Number)).toEqual(false);
+    const numberChecker = new TypeChecker(Primitives.Number);
+
+    expect(numberChecker.match(0)).toEqual(true);
+    expect(numberChecker.match(1)).toEqual(true);
+    expect(numberChecker.match(false)).toEqual(false);
+    expect(numberChecker.match(true)).toEqual(false);
+    expect(numberChecker.match('test')).toEqual(false);
+    expect(numberChecker.match([])).toEqual(false);
+    expect(numberChecker.match({})).toEqual(false);
+    expect(numberChecker.match(null)).toEqual(false);
+    expect(numberChecker.match(undefined)).toEqual(false);
   });
 
   test('handles array of numbers', () => {
-    expect(typeCheck([0, 1], NonPrimitive.ListNumber)).toEqual(true);
-    expect(typeCheck([0, 1, false], NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck([0, 1, true], NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck([0, 1, ''], NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck([0, 1, 'test'], NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck([0, 1, []], NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck([0, 1, {}], NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck([0, 1, null], NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck([0, 1, undefined], NonPrimitive.ListNumber)).toEqual(false);
+    const numberListChecker = new TypeChecker(NonPrimitives.ListNumber);
 
-    expect(typeCheck('', NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck('test', NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck(0, NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck(1, NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck(false, NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck(true, NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck([], NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck({}, NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck(null, NonPrimitive.ListNumber)).toEqual(false);
-    expect(typeCheck(undefined, NonPrimitive.ListNumber)).toEqual(false);
+    expect(numberListChecker.match([0, 1])).toEqual(true);
+    expect(numberListChecker.match([0, 1, false])).toEqual(false);
+    expect(numberListChecker.match([0, 1, true])).toEqual(false);
+    expect(numberListChecker.match([0, 1, ''])).toEqual(false);
+    expect(numberListChecker.match([0, 1, 'test'])).toEqual(false);
+    expect(numberListChecker.match([0, 1, []])).toEqual(false);
+    expect(numberListChecker.match([0, 1, {}])).toEqual(false);
+    expect(numberListChecker.match([0, 1, null])).toEqual(false);
+    expect(numberListChecker.match([0, 1, undefined])).toEqual(false);
+
+    expect(numberListChecker.match('')).toEqual(false);
+    expect(numberListChecker.match('test')).toEqual(false);
+    expect(numberListChecker.match(0)).toEqual(false);
+    expect(numberListChecker.match(1)).toEqual(false);
+    expect(numberListChecker.match(false)).toEqual(false);
+    expect(numberListChecker.match(true)).toEqual(false);
+    expect(numberListChecker.match([])).toEqual(false);
+    expect(numberListChecker.match({})).toEqual(false);
+    expect(numberListChecker.match(null)).toEqual(false);
+    expect(numberListChecker.match(undefined)).toEqual(false);
   });
 
   test('handles strings', () => {
-    expect(typeCheck('', Primitive.String)).toEqual(true);
-    expect(typeCheck('test', Primitive.String)).toEqual(true);
-    expect(typeCheck(0, Primitive.String)).toEqual(false);
-    expect(typeCheck(1, Primitive.String)).toEqual(false);
-    expect(typeCheck(false, Primitive.String)).toEqual(false);
-    expect(typeCheck(true, Primitive.String)).toEqual(false);
-    expect(typeCheck([], Primitive.String)).toEqual(false);
-    expect(typeCheck({}, Primitive.String)).toEqual(false);
-    expect(typeCheck(null, Primitive.String)).toEqual(false);
-    expect(typeCheck(undefined, Primitive.String)).toEqual(false);
+    const stringChecker = new TypeChecker(Primitives.String);
+
+    expect(stringChecker.match('')).toEqual(true);
+    expect(stringChecker.match('test')).toEqual(true);
+    expect(stringChecker.match(0)).toEqual(false);
+    expect(stringChecker.match(1)).toEqual(false);
+    expect(stringChecker.match(false)).toEqual(false);
+    expect(stringChecker.match(true)).toEqual(false);
+    expect(stringChecker.match([])).toEqual(false);
+    expect(stringChecker.match({})).toEqual(false);
+    expect(stringChecker.match(null)).toEqual(false);
+    expect(stringChecker.match(undefined)).toEqual(false);
   });
 
   test('handles array of string', () => {
-    expect(typeCheck(['', 'test'], NonPrimitive.ListString)).toEqual(true);
-    expect(typeCheck(['', 'test', false], NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(['', 'test', true], NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(['', 'test', 0], NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(['', 'test', 1], NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(['', 'test', []], NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(['', 'test', {}], NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(['', 'test', null], NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(['', 'test', undefined], NonPrimitive.ListString)).toEqual(false);
+    const stringListChecker = new TypeChecker(NonPrimitives.ListString);
 
-    expect(typeCheck('', NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck('test', NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(0, NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(1, NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(false, NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(true, NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck([], NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck({}, NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(null, NonPrimitive.ListString)).toEqual(false);
-    expect(typeCheck(undefined, NonPrimitive.ListString)).toEqual(false);
+    expect(stringListChecker.match(['', 'test'])).toEqual(true);
+    expect(stringListChecker.match(['', 'test', false])).toEqual(false);
+    expect(stringListChecker.match(['', 'test', true])).toEqual(false);
+    expect(stringListChecker.match(['', 'test', 0])).toEqual(false);
+    expect(stringListChecker.match(['', 'test', 1])).toEqual(false);
+    expect(stringListChecker.match(['', 'test', []])).toEqual(false);
+    expect(stringListChecker.match(['', 'test', {}])).toEqual(false);
+    expect(stringListChecker.match(['', 'test', null])).toEqual(false);
+    expect(stringListChecker.match(['', 'test', undefined])).toEqual(false);
+
+    expect(stringListChecker.match('')).toEqual(false);
+    expect(stringListChecker.match('test')).toEqual(false);
+    expect(stringListChecker.match(0)).toEqual(false);
+    expect(stringListChecker.match(1)).toEqual(false);
+    expect(stringListChecker.match(false)).toEqual(false);
+    expect(stringListChecker.match(true)).toEqual(false);
+    expect(stringListChecker.match([])).toEqual(false);
+    expect(stringListChecker.match({})).toEqual(false);
+    expect(stringListChecker.match(null)).toEqual(false);
+    expect(stringListChecker.match(undefined)).toEqual(false);
   });
 
   test('handles array of multiple types (strings, numbers and booleans)', () => {
-    expect(typeCheck(['', 'test', 0, 1, false, true, [], {}, null, undefined], NonPrimitive.ListAny)).toEqual(true);
+    const anyListChecker = new TypeChecker(NonPrimitives.ListAny);
 
-    expect(typeCheck('', NonPrimitive.ListAny)).toEqual(false);
-    expect(typeCheck('test', NonPrimitive.ListAny)).toEqual(false);
-    expect(typeCheck(0, NonPrimitive.ListAny)).toEqual(false);
-    expect(typeCheck(1, NonPrimitive.ListAny)).toEqual(false);
-    expect(typeCheck(false, NonPrimitive.ListAny)).toEqual(false);
-    expect(typeCheck(true, NonPrimitive.ListAny)).toEqual(false);
-    expect(typeCheck([], NonPrimitive.ListAny)).toEqual(true);
-    expect(typeCheck({}, NonPrimitive.ListAny)).toEqual(false);
-    expect(typeCheck(null, NonPrimitive.ListAny)).toEqual(false);
-    expect(typeCheck(undefined, NonPrimitive.ListAny)).toEqual(false);
+    expect(anyListChecker.match(['', 'test', 0, 1, false, true, [], {}, null, undefined])).toEqual(true);
+    expect(anyListChecker.match('')).toEqual(false);
+    expect(anyListChecker.match('test')).toEqual(false);
+    expect(anyListChecker.match(0)).toEqual(false);
+    expect(anyListChecker.match(1)).toEqual(false);
+    expect(anyListChecker.match(false)).toEqual(false);
+    expect(anyListChecker.match(true)).toEqual(false);
+    expect(anyListChecker.match([])).toEqual(true);
+    expect(anyListChecker.match({})).toEqual(false);
+    expect(anyListChecker.match(null)).toEqual(false);
+    expect(anyListChecker.match(undefined)).toEqual(false);
   });
 
   test('handles objects', () => {
-    expect(typeCheck({}, NonPrimitive.Object)).toEqual(true);
-    expect(typeCheck('', NonPrimitive.Object)).toEqual(false);
-    expect(typeCheck('test', NonPrimitive.Object)).toEqual(false);
-    expect(typeCheck(0, NonPrimitive.Object)).toEqual(false);
-    expect(typeCheck(1, NonPrimitive.Object)).toEqual(false);
-    expect(typeCheck(false, NonPrimitive.Object)).toEqual(false);
-    expect(typeCheck(true, NonPrimitive.Object)).toEqual(false);
-    expect(typeCheck([], NonPrimitive.Object)).toEqual(false);
-    expect(typeCheck(null, NonPrimitive.Object)).toEqual(false);
-    expect(typeCheck(undefined, NonPrimitive.Object)).toEqual(false);
+    const objectChecker = new TypeChecker(NonPrimitives.Object);
+
+    expect(objectChecker.match({})).toEqual(true);
+    expect(objectChecker.match('')).toEqual(false);
+    expect(objectChecker.match('test')).toEqual(false);
+    expect(objectChecker.match(0)).toEqual(false);
+    expect(objectChecker.match(1)).toEqual(false);
+    expect(objectChecker.match(false)).toEqual(false);
+    expect(objectChecker.match(true)).toEqual(false);
+    expect(objectChecker.match([])).toEqual(false);
+    expect(objectChecker.match(null)).toEqual(false);
+    expect(objectChecker.match(undefined)).toEqual(false);
   });
 
   test('handles incorrect type', () => {
     // @ts-ignore
-    expect(typeCheck(0, 'incorrectType')).toEqual(false);
+    const typeChecker = new TypeChecker('incorrectType');
+
+    expect(typeChecker.match(false)).toEqual(false);
+    expect(typeChecker.match(true)).toEqual(false);
+    expect(typeChecker.match(0)).toEqual(false);
+    expect(typeChecker.match(1)).toEqual(false);
+    expect(typeChecker.match('test')).toEqual(false);
+    expect(typeChecker.match([])).toEqual(false);
+    expect(typeChecker.match({})).toEqual(false);
+    expect(typeChecker.match(null)).toEqual(false);
+    expect(typeChecker.match(undefined)).toEqual(false);
   });
 });
