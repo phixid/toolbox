@@ -1,4 +1,4 @@
-import { Primitives } from '../utils/model-validate';
+import { Primitives } from '../utils/validation/ModelValidator';
 
 export const mockAddressModel = [
   { key: 'street', required: true, type: Primitives.String },

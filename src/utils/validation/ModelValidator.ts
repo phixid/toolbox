@@ -1,4 +1,4 @@
-import { Validator } from './validation';
+import { Validator } from './index';
 
 export enum Primitives {
   Boolean = 'boolean',

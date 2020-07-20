@@ -1,6 +1,5 @@
-import { ModelValidator } from './model-validate';
-import { mockUser, mockUserModel } from '../__mocks__/user-mock';
-import { BooleanValidator, NumberValidator, StringValidator } from './validation';
+import { mockUser, mockUserModel } from '../../__mocks__/user-mock';
+import { BooleanValidator, ModelValidator, NumberValidator, StringValidator } from './index';
 
 const validators = {
   boolean: new BooleanValidator(),

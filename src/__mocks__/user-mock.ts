@@ -1,5 +1,5 @@
 import { mockAddress, mockAddressModel } from './address-mock';
-import { Primitives } from '../utils/model-validate';
+import { Primitives } from '../utils/validation/ModelValidator';
 
 export const mockUserModel = [
   { key: 'firstname', required: true, type: Primitives.String },
