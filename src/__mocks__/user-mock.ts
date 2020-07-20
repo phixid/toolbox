@@ -1,21 +1,17 @@
-import { NonPrimitives, Primitives } from '../utils/type-validator';
 import { mockAddress, mockAddressModel } from './address-mock';
+import { Primitives } from '../utils/model-validate';
 
-export const mockUserModel = {
-  firstname: { required: true, type: Primitives.String },
-  lastname: { required: true, type: Primitives.String },
-  email: { required: true, type: Primitives.String },
-  phone: { type: Primitives.String },
-};
+export const mockUserModel = [
+  { key: 'firstname', required: true, type: Primitives.String },
+  { key: 'lastname', required: true, type: Primitives.String },
+  { key: 'email', required: true, type: Primitives.String },
+  { key: 'phone', type: Primitives.String },
+];
 
-export const mockUserWithAddressModel = {
+export const mockUserWithAddressModel = [
   ...mockUserModel,
-  address: {
-    required: true,
-    type: NonPrimitives.Object,
-    model: mockAddressModel,
-  },
-};
+  { key: 'address', required: true, type: 'object', model: mockAddressModel },
+];
 
 export const mockUser = {
   firstname: 'Kristof',

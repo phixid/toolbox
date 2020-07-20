@@ -1,121 +1,86 @@
-import { NonPrimitives, Primitives, TypeValidator } from './type-validator';
+import { Validator } from './validation';
 
-export type Model = {
-  [key: string]: {
-    required?: boolean;
-    type: NonPrimitives | Primitives;
-    model?: Model;
-  };
+export enum Primitives {
+  Boolean = 'boolean',
+  Number = 'number',
+  String = 'string',
+}
+
+type ModelProperty = {
+  key: string;
+  required?: boolean;
+  type: Primitives;
 };
 
-export const modelValidate = async (obj: any, model: Model) => {
-  if (!obj || typeof obj !== 'object') {
-    const error =
-      typeof obj === 'boolean' || typeof obj === 'number' || typeof obj === 'string'
-        ? `Model validation error: obj is of type ${typeof obj}`
-        : `Model validation error: obj is ${obj}`;
+type Model = ModelProperty[];
 
-    return {
-      errors: [error],
-      isValid: false,
-    };
+type ModelValidatorResult = {
+  errors: string[];
+  isValid: boolean;
+};
+
+export class ModelValidator {
+  private errors: string[];
+  private isValid: boolean;
+  private model: Model;
+  private readonly validators: { [key: string]: Validator };
+
+  constructor(model: Model, validators: { [key: string]: Validator }) {
+    this.errors = [];
+    this.isValid = true;
+    this.model = model;
+    this.validators = validators;
   }
 
-  const { errors: requiredPropertyErrors, hasRequiredProperties } = await checkForRequiredProperties(model, obj);
-  const { errors: matchingPropertyTypeErrors, hasMatchingPropertyTypes } = await checkForMatchingPropertyTypes(
-    model,
-    obj
-  );
-  const aggregateErrors = [...requiredPropertyErrors, ...matchingPropertyTypeErrors];
+  public validate = (obj: any): ModelValidatorResult => {
+    this.bootstrap();
+    this.checkRequiredProperties(obj);
+    this.checkPropertyTypes(obj);
 
-  return {
-    errors: aggregateErrors.length ? aggregateErrors : null,
-    isValid: hasRequiredProperties && hasMatchingPropertyTypes,
+    return {
+      errors: this.errors,
+      isValid: this.isValid,
+    };
   };
-};
 
-/**
- * Check if an object has the required properties of a model
- * @param model
- * @param obj
- */
-type RequiredPropertiesReturnType = { errors: string[]; hasRequiredProperties: boolean };
-const checkForRequiredProperties = (model: Model, obj: any): RequiredPropertiesReturnType => {
-  // @ts-ignore
-  return Object.entries(model)
-    .filter(([_, value]) => value && value.required)
-    .reduce(
-      (acc: RequiredPropertiesReturnType, [requiredKey, requiredValue]) => {
-        const errors: string[] = [...acc.errors];
-        const isDefined = obj[requiredKey] !== undefined;
-        if (!isDefined) errors.push(`Model validation error: missing required property ${requiredKey}`);
+  private checkRequiredProperties = (obj: any): void => {
+    const requiredProperties = this.model.filter((property) => property.required);
+    return requiredProperties.forEach((requiredProperty) => {
+      const { key } = requiredProperty;
 
-        const isNestedObject = new TypeValidator(NonPrimitives.Object).validate(obj[requiredKey]);
-        if (isNestedObject && requiredValue.model) {
-          const {
-            errors: nestedErrors,
-            hasRequiredProperties: hasNestedRequiredProperties,
-          } = checkForRequiredProperties(requiredValue.model, obj[requiredKey]);
+      if (obj?.[key] === undefined) {
+        this.invalidate();
+        this.addFormattedError(`missing required property ${key}`);
+      }
+    });
+  };
 
-          return {
-            errors: [...errors, ...nestedErrors],
-            hasRequiredProperties: acc.hasRequiredProperties && isDefined && hasNestedRequiredProperties,
-          };
+  private checkPropertyTypes = (obj: any): void => {
+    return this.model.forEach((property) => {
+      const { key, required, type: expectedType } = property;
+      const validator = this.validators[expectedType];
+      const value = obj?.[key];
+      const canBeUndefined = !required && value === undefined;
+
+      if (!canBeUndefined) {
+        if (!validator.validate(value)) {
+          this.invalidate();
+          this.addFormattedError(`expected ${key} to have type ${expectedType} but has type ${typeof value}`);
         }
-
-        return {
-          errors,
-          hasRequiredProperties: acc.hasRequiredProperties && isDefined,
-        };
-      },
-      {
-        errors: [],
-        hasRequiredProperties: true,
       }
-    );
-};
+    });
+  };
 
-/**
- * Check if an objects properties match the types of a model
- * @param model
- * @param obj
- */
-type MatchingPropertyTypesReturnType = { errors: string[]; hasMatchingPropertyTypes: boolean };
-const checkForMatchingPropertyTypes = (model: Model, obj: any): MatchingPropertyTypesReturnType => {
-  return Object.entries(model).reduce(
-    (acc: MatchingPropertyTypesReturnType, [key, value]) => {
-      const errors: string[] = [...acc.errors];
-      const canBeUndefined = !value.required && obj[key] === undefined;
-      const isMatchingPropertyType = new TypeValidator(value.type).validate(obj[key]);
+  private invalidate = (): void => {
+    this.isValid = false;
+  };
 
-      if (!canBeUndefined && !isMatchingPropertyType) {
-        errors.push(`Model validation error: property ${key} has type ${typeof obj[key]} expected type ${value.type}`);
-      }
+  private addFormattedError = (msg: string): void => {
+    this.errors = [...this.errors, `Model validation error: ${msg}`];
+  };
 
-      const isNestedObject = new TypeValidator(NonPrimitives.Object).validate(obj[key]);
-      if (isNestedObject && value.model) {
-        const {
-          errors: nestedErrors,
-          hasMatchingPropertyTypes: hasNestedNestedMatchingPropertyTypes,
-        } = checkForMatchingPropertyTypes(value.model, obj[key]);
-
-        return {
-          errors: [...errors, ...nestedErrors],
-          hasMatchingPropertyTypes:
-            acc.hasMatchingPropertyTypes &&
-            (canBeUndefined || isMatchingPropertyType) &&
-            hasNestedNestedMatchingPropertyTypes,
-        };
-      }
-
-      return {
-        errors,
-        hasMatchingPropertyTypes: acc.hasMatchingPropertyTypes && (canBeUndefined || isMatchingPropertyType),
-      };
-    },
-    {
-      errors: [],
-      hasMatchingPropertyTypes: true,
-    }
-  );
-};
+  private bootstrap = () => {
+    this.errors = [];
+    this.isValid = true;
+  };
+}
