@@ -34,8 +34,8 @@ export class ModelValidator {
 
   public validate = (obj: any): ModelValidatorResult => {
     this.bootstrap();
-    this.checkRequiredProperties(obj);
-    this.checkPropertyTypes(obj);
+    this.validateRequiredProperties(obj);
+    this.validateCorrectPropertyTypes(obj);
 
     return {
       errors: this.errors,
@@ -43,32 +43,37 @@ export class ModelValidator {
     };
   };
 
-  private checkRequiredProperties = (obj: any): void => {
+  private validateRequiredProperties = (obj: any): void => {
     const requiredProperties = this.model.filter((property) => property.required);
     return requiredProperties.forEach((requiredProperty) => {
       const { key } = requiredProperty;
 
-      if (obj?.[key] === undefined) {
+      if (obj[key] === undefined) {
         this.invalidate();
         this.addFormattedError(`missing required property ${key}`);
       }
     });
   };
 
-  private checkPropertyTypes = (obj: any): void => {
-    return this.model.forEach((property) => {
-      const { key, required, type: expectedType } = property;
-      const validator = this.validators[expectedType];
-      const value = obj?.[key];
-      const canBeUndefined = !required && value === undefined;
+  private validateCorrectPropertyTypes = (obj: any): void => {
+    return this.model.forEach((modelProperty) => {
+      const { key, type: expectedType } = modelProperty;
+      const propertyValue = obj[key];
+      const errorMessage = `expected ${key} to have type ${expectedType} but has type ${typeof propertyValue}`;
 
-      if (!canBeUndefined) {
-        if (!validator.validate(value)) {
-          this.invalidate();
-          this.addFormattedError(`expected ${key} to have type ${expectedType} but has type ${typeof value}`);
-        }
+      if (!this.checkPropertyType(modelProperty, propertyValue)) {
+        this.invalidate();
+        this.addFormattedError(errorMessage);
       }
     });
+  };
+
+  private checkPropertyType = (modelProperty: ModelProperty, propertyValue: any): boolean => {
+    const { required, type } = modelProperty;
+    const typeValidator = this.validators[type];
+    const hasCorrectType = typeValidator && typeValidator.validate(propertyValue);
+
+    return required ? hasCorrectType : propertyValue === undefined || hasCorrectType;
   };
 
   private invalidate = (): void => {
