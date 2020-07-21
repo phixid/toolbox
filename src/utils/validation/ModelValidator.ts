@@ -1,5 +1,9 @@
 import { Validator } from './index';
 
+export enum NonPrimitives {
+  Object = 'object',
+}
+
 export enum Primitives {
   Boolean = 'boolean',
   Number = 'number',
@@ -8,8 +12,9 @@ export enum Primitives {
 
 type ModelProperty = {
   key: string;
+  model?: Model;
   required?: boolean;
-  type: Primitives;
+  type: NonPrimitives | Primitives;
 };
 
 type Model = ModelProperty[];
@@ -35,12 +40,29 @@ export class ModelValidator {
   public validate = (obj: any): ModelValidatorResult => {
     this.bootstrap();
     this.validateRequiredProperties(obj);
-    this.validateCorrectPropertyTypes(obj);
+    this.validatePropertyTypes(obj);
+    this.validateNestedModels(obj);
 
     return {
       errors: this.errors,
       isValid: this.isValid,
     };
+  };
+
+  private validateNestedModels = (obj: any) => {
+    const nestedModels = this.model.filter((property) => property.type === NonPrimitives.Object);
+    nestedModels.forEach((nestedModel) => {
+      const { key, model } = nestedModel;
+
+      if (model && key) {
+        const nestedObj = obj[key];
+        const validator = new ModelValidator(model, this.validators);
+        const { errors } = validator.validate(nestedObj);
+        errors.forEach(this.invalidate);
+      } else {
+        this.invalidate(`nested model ${key} does not have an assigned model`);
+      }
+    });
   };
 
   private validateRequiredProperties = (obj: any): void => {
@@ -49,39 +71,31 @@ export class ModelValidator {
       const { key } = requiredProperty;
 
       if (obj[key] === undefined) {
-        this.invalidate();
-        this.addFormattedError(`missing required property ${key}`);
+        this.invalidate(`missing required property ${key}`);
       }
     });
   };
 
-  private validateCorrectPropertyTypes = (obj: any): void => {
+  private validatePropertyTypes = (obj: any): void => {
     return this.model.forEach((modelProperty) => {
       const { key, type: expectedType } = modelProperty;
+      const typeValidator = this.validators[expectedType];
       const propertyValue = obj[key];
-      const errorMessage = `expected ${key} to have type ${expectedType} but has type ${typeof propertyValue}`;
+      const hasCorrectType = typeValidator && typeValidator.validate(propertyValue);
 
-      if (!this.checkPropertyType(modelProperty, propertyValue)) {
-        this.invalidate();
-        this.addFormattedError(errorMessage);
+      if (propertyValue !== undefined && !hasCorrectType) {
+        const errorMessage = `expected ${key} to have type ${expectedType} but has type ${typeof propertyValue}`;
+        this.invalidate(errorMessage);
       }
     });
   };
 
-  private checkPropertyType = (modelProperty: ModelProperty, propertyValue: any): boolean => {
-    const { required, type } = modelProperty;
-    const typeValidator = this.validators[type];
-    const hasCorrectType = typeValidator && typeValidator.validate(propertyValue);
+  private invalidate = (msg: string): void => {
+    const errorPrefix = 'Model validation error:';
+    const errorMsg = msg.startsWith(errorPrefix) ? msg : `${errorPrefix} ${msg}`;
 
-    return required ? hasCorrectType : propertyValue === undefined || hasCorrectType;
-  };
-
-  private invalidate = (): void => {
     this.isValid = false;
-  };
-
-  private addFormattedError = (msg: string): void => {
-    this.errors = [...this.errors, `Model validation error: ${msg}`];
+    this.errors = [...this.errors, errorMsg];
   };
 
   private bootstrap = () => {
