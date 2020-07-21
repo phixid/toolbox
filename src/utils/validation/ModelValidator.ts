@@ -40,8 +40,8 @@ export class ModelValidator {
   public validate = (obj: any): ModelValidatorResult => {
     this.bootstrap();
     this.validateRequiredProperties(obj);
-    this.validatePropertyTypes(obj);
-    this.validateNestedModels(obj);
+    if (this.isValid) this.validatePropertyTypes(obj);
+    if (this.isValid) this.validateNestedModels(obj);
 
     return {
       errors: this.errors,
@@ -77,15 +77,28 @@ export class ModelValidator {
   private validatePropertyTypes = (obj: any): void => {
     return this.model.forEach((modelProperty) => {
       const { key, type: expectedType } = modelProperty;
-      const typeValidator = this.typeValidators[expectedType];
-      if (!typeValidator) return this.invalidate(`missing validator for type ${expectedType}`);
+      const typeValidator = this.getValidatorForType(expectedType);
+      const objectProperty = obj[key];
 
-      const propertyValue = obj[key];
-      const hasCorrectType = typeValidator && typeValidator.validate(propertyValue);
-      const errorMessage = `expected ${key} to have type ${expectedType} but has type ${typeof propertyValue}`;
-
-      if (propertyValue !== undefined && !hasCorrectType) this.invalidate(errorMessage);
+      if (typeValidator) {
+        if (this.hasInvalidType(objectProperty, typeValidator)) {
+          const errorMsg = `expected ${key} to have type ${expectedType} but has type ${typeof objectProperty}`;
+          return this.invalidate(errorMsg);
+        }
+      } else {
+        return this.invalidate(`missing validator for type ${expectedType}`);
+      }
     });
+  };
+
+  private getValidatorForType = (type: NonPrimitives | Primitives): Validator | null => {
+    return this.typeValidators[type] || null;
+  };
+
+  private hasInvalidType = (objectProperty: any, validator: Validator): boolean => {
+    const hasIncorrectType = !validator.validate(objectProperty);
+    const isDefined = objectProperty !== undefined;
+    return hasIncorrectType && isDefined;
   };
 
   private invalidate = (msg: string): void => {
