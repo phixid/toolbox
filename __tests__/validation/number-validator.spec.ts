@@ -1,4 +1,4 @@
-import { NumberValidator } from './number-validator';
+import { NumberValidator } from '../../lib';
 
 describe('NumberValidator', () => {
   const validator = new NumberValidator();

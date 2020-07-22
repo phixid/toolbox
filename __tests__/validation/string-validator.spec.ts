@@ -1,4 +1,4 @@
-import { StringValidator } from './string-validator';
+import { StringValidator } from '../../lib';
 
 describe('StringValidator', () => {
   const validator = new StringValidator();

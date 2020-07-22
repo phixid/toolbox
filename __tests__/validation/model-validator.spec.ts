@@ -5,7 +5,7 @@ import {
   mockUserWithAddress,
   mockUserWithAddressModel,
 } from '../../__mocks__/user-mock';
-import { BooleanValidator, ModelValidator, NumberValidator, ObjectValidator, StringValidator } from './index';
+import { BooleanValidator, ModelValidator, NumberValidator, ObjectValidator, StringValidator } from '../../lib';
 
 const validators = {
   boolean: new BooleanValidator(),

@@ -1,4 +1,4 @@
-import { BooleanValidator } from './boolean-validator';
+import { BooleanValidator } from '../../lib';
 
 describe('BooleanValidator', () => {
   const validator = new BooleanValidator();

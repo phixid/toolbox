@@ -1,4 +1,4 @@
-import { range } from './range';
+import { range } from '../../lib';
 
 describe('range', () => {
   test('returns an array with length x - y', () => {

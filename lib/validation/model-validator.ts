@@ -1,4 +1,4 @@
-import { Validator } from './index';
+import { Validator } from './validator';
 
 export enum NonPrimitives {
   Object = 'object',
