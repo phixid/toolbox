@@ -91,7 +91,7 @@ describe('ModelValidator', () => {
         const invalidUserWithAddressValidator = new ModelValidator(invalidMockUserWithAddressModel, validators);
         const { errors, isValid } = invalidUserWithAddressValidator.validate(mockUserWithAddress);
 
-        expect(errors).toEqual(['Model validation error: missing nested model address']);
+        expect(errors).toEqual(['Model validation error: missing nested model for key address']);
         expect(isValid).toEqual(false);
       });
 

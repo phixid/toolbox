@@ -1,14 +1,9 @@
-import { BooleanValidator } from './BooleanValidator';
+import { NumberValidator } from './number-validator';
 
-describe('BooleanValidator', () => {
-  const validator = new BooleanValidator();
+describe('NumberValidator', () => {
+  const validator = new NumberValidator();
 
   describe('validate', () => {
-    test('false when passing numbers', () => {
-      expect(validator.validate(0)).toEqual(false);
-      expect(validator.validate(1)).toEqual(false);
-    });
-
     test('false when passing string', () => {
       expect(validator.validate('')).toEqual(false);
       expect(validator.validate('test')).toEqual(false);
@@ -22,8 +17,13 @@ describe('BooleanValidator', () => {
     });
 
     test('true when passing boolean', () => {
-      expect(validator.validate(false)).toEqual(true);
-      expect(validator.validate(true)).toEqual(true);
+      expect(validator.validate(false)).toEqual(false);
+      expect(validator.validate(true)).toEqual(false);
+    });
+
+    test('true when passing numbers', () => {
+      expect(validator.validate(0)).toEqual(true);
+      expect(validator.validate(1)).toEqual(true);
     });
   });
 });

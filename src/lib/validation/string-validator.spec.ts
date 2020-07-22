@@ -1,14 +1,9 @@
-import { NumberValidator } from './NumberValidator';
+import { StringValidator } from './string-validator';
 
-describe('NumberValidator', () => {
-  const validator = new NumberValidator();
+describe('StringValidator', () => {
+  const validator = new StringValidator();
 
   describe('validate', () => {
-    test('false when passing string', () => {
-      expect(validator.validate('')).toEqual(false);
-      expect(validator.validate('test')).toEqual(false);
-    });
-
     test('false when passing non-primitive values', () => {
       expect(validator.validate([])).toEqual(false);
       expect(validator.validate({})).toEqual(false);
@@ -21,9 +16,14 @@ describe('NumberValidator', () => {
       expect(validator.validate(true)).toEqual(false);
     });
 
-    test('true when passing numbers', () => {
-      expect(validator.validate(0)).toEqual(true);
-      expect(validator.validate(1)).toEqual(true);
+    test('false when passing numbers', () => {
+      expect(validator.validate(0)).toEqual(false);
+      expect(validator.validate(1)).toEqual(false);
+    });
+
+    test('true when passing string', () => {
+      expect(validator.validate('')).toEqual(true);
+      expect(validator.validate('test')).toEqual(true);
     });
   });
 });

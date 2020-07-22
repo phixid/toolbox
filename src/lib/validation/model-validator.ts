@@ -53,15 +53,11 @@ export class ModelValidator {
     const nestedModels = this.model.filter((property) => property.type === NonPrimitives.Object);
     nestedModels.forEach((nestedModel) => {
       const { key, model } = nestedModel;
-
-      if (model && key) {
-        const nestedObj = obj[key];
-        const validator = new ModelValidator(model, this.typeValidators);
-        const { errors } = validator.validate(nestedObj);
-        errors.forEach(this.invalidate);
-      } else {
-        this.invalidate(`missing nested model ${key}`);
-      }
+      if (!model) return this.invalidate(`missing nested model for key ${key}`);
+      const nestedObj = obj[key];
+      const validator = new ModelValidator(model, this.typeValidators);
+      const { errors } = validator.validate(nestedObj);
+      errors.forEach(this.invalidate);
     });
   };
 
@@ -80,13 +76,9 @@ export class ModelValidator {
       const typeValidator = this.getValidatorForType(expectedType);
       const objectProperty = obj[key];
 
-      if (typeValidator) {
-        if (this.hasInvalidType(objectProperty, typeValidator)) {
-          const errorMsg = `expected ${key} to have type ${expectedType} but has type ${typeof objectProperty}`;
-          return this.invalidate(errorMsg);
-        }
-      } else {
-        return this.invalidate(`missing validator for type ${expectedType}`);
+      if (!typeValidator) return this.invalidate(`missing validator for type ${expectedType}`);
+      if (this.hasInvalidType(objectProperty, typeValidator)) {
+        this.invalidate(`expected ${key} to have type ${expectedType} but has type ${typeof objectProperty}`);
       }
     });
   };

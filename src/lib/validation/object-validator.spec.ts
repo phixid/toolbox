@@ -1,4 +1,4 @@
-import { ObjectValidator } from './ObjectValidator';
+import { ObjectValidator } from './object-validator';
 
 describe('ObjectValidator', () => {
   const validator = new ObjectValidator();
